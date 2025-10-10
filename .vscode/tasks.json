@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-o",
+                "bin/game.exe",
+                "src/main.c",
+                "-lallegro",
+                "-lallegro_main",
+                "-lallegro_primitives",
+                "-lallegro_image",
+                "-lallegro_font",
+                "-lallegro_ttf",
+                "-lallegro_audio",
+                "-lallegro_acodec"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
