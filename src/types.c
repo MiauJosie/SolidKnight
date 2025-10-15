@@ -3,7 +3,7 @@
 // DIREÇÃO E MAGNITUDE!
 
 // funções para vetor2
-Vector2 vector2_create(float x, float y)
+Vector2 vector2_create(int x, int y)
 {
     Vector2 vector2;
 
@@ -23,7 +23,7 @@ Vector2 vector2_add(Vector2 a, Vector2 b)
     return vector2;
 }
 
-Vector2 vector2_scale(Vector2 v, float scale)
+Vector2 vector2_scale(Vector2 v, int scale)
 {
     Vector2 vector2;
 

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #include "actor.h"
+#include "solid.h"
+#include "level.h"
+#include "types.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
@@ -31,9 +34,9 @@ int main(void)
     must_init(al_init_font_addon(), "font addon");
 
     // opções para mudar a forma que o jogo é renderizado
-    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
-    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+    // al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+    // al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+    // al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     must_init(timer, "timer");
@@ -47,8 +50,12 @@ int main(void)
     ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 16, 0);
     must_init(font, "font");
 
-    ALLEGRO_BITMAP *yoda = al_load_bitmap("data/yoda.jpg");
-    must_init(yoda, "yoda");
+    ALLEGRO_BITMAP *player_sprite = al_load_bitmap("data/player.png");
+    must_init(player_sprite, "player sprite");
+
+    Vector2 player_pos = {100, 100};
+    Actor *player = actor_create(player_pos, 32, 32);
+    player->sprite = player_sprite;
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -84,7 +91,9 @@ int main(void)
         // atualiza os elementos visuais do jogo
         if (redraw && al_event_queue_is_empty(queue))
         {
-            // stuff
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+
+            actor_draw(player);
 
             al_flip_display();
 
@@ -93,7 +102,8 @@ int main(void)
         }
     }
 
-    al_destroy_bitmap(yoda);
+    al_destroy_bitmap(player_sprite);
+    // level_destroy(level);
     al_destroy_font(font);
     al_destroy_display(display);
     al_destroy_timer(timer);

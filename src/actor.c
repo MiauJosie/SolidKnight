@@ -85,3 +85,14 @@ void actor_move_y(Actor *actor, float amount)
         actor->position.y += amount;
     }
 }
+
+void actor_draw(Actor *actor)
+{
+    if (actor->sprite == NULL)
+    {
+        return;
+    }
+
+    int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
+    al_draw_bitmap(actor->sprite, actor->position.x, actor->position.y, flags);
+}

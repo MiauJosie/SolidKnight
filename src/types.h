@@ -21,6 +21,6 @@ Vector2 vector2_add(Vector2 a, Vector2 b);
 Vector2 vector2_scale(Vector2 v, int scale);
 
 // funções para retângulo
-bool rectangle_intersects(Rectangle a, Rectangle b);
+bool rectangles_intersect(Rectangle a, Rectangle b);
 int rectangle_width(Rectangle r);
 int rectangle_height(Rectangle r);

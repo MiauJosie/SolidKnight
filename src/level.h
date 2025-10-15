@@ -6,7 +6,7 @@
 #define MAX_SOLIDS 100
 #define TITLE_SIZE 8
 
-typedef struct
+typedef struct Level
 {
     Actor *actors[MAX_ACTORS];
     int actor_count;

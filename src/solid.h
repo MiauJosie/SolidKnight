@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include <allegro5/allegro5.h>
 #include "types.h"
 
 typedef struct Level Level;
