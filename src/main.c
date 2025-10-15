@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "actor.h"
+
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
@@ -24,22 +27,24 @@ int main(void)
     must_init(al_install_keyboard(), "keyboard");
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_image_addon(), "image addon");
+    must_init(al_init_ttf_addon(), "ttf addon");
+    must_init(al_init_font_addon(), "font addon");
 
     // opções para mudar a forma que o jogo é renderizado
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
     al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     must_init(queue, "queue");
 
-    ALLEGRO_DISPLAY *display = al_create_display(640, 480);
+    ALLEGRO_DISPLAY *display = al_create_display(1280, 820);
     must_init(display, "display");
 
-    ALLEGRO_FONT *font = al_create_builtin_font();
+    ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 16, 0);
     must_init(font, "font");
 
     ALLEGRO_BITMAP *yoda = al_load_bitmap("data/yoda.jpg");
@@ -79,24 +84,7 @@ int main(void)
         // atualiza os elementos visuais do jogo
         if (redraw && al_event_queue_is_empty(queue))
         {
-            al_clear_to_color(al_map_rgb(2, 1, 1));
-            al_draw_text(font, al_map_rgb(255, 255, 255), 10, 10, 0, "Depois que inventaram o 38, capoeira virou dança...");
-            al_draw_bitmap(yoda, 100, 100, 0);
-
-            al_draw_filled_triangle(35, 350, 85, 375, 35, 400, al_map_rgb_f(0, 1, 0));
-            al_draw_filled_rectangle(240, 260, 340, 340, al_map_rgba_f(0, 0, 0.5, 0.5));
-            al_draw_circle(450, 370, 30, al_map_rgb_f(1, 0, 1), 2);
-            al_draw_line(440, 110, 460, 210, al_map_rgb_f(1, 0, 0), 1);
-            al_draw_line(500, 220, 570, 200, al_map_rgb_f(1, 1, 0), 1);
-
-            ALLEGRO_VERTEX v[] = {
-                {.x = 210, .y = 320, .z = 0, .color = al_map_rgb_f(1, 0, 0)},
-                {.x = 330, .y = 320, .z = 0, .color = al_map_rgb_f(0, 1, 0)},
-                {.x = 210, .y = 420, .z = 0, .color = al_map_rgb_f(0, 0, 1)},
-                {.x = 330, .y = 420, .z = 0, .color = al_map_rgb_f(1, 1, 0)},
-            };
-
-            al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
+            // stuff
 
             al_flip_display();
 

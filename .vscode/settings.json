@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "stdlib.h": "c",
+        "bitset": "c",
+        "forward_list": "c",
+        "list": "c",
+        "unordered_map": "c",
+        "unordered_set": "c",
+        "format": "c",
+        "fstream": "c",
+        "istream": "c",
+        "mutex": "c",
+        "streambuf": "c",
+        "functional": "c",
+        "regex": "c",
+        "valarray": "c",
+        "cstdlib": "c"
+    }
+}

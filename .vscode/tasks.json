@@ -7,7 +7,7 @@
             "command": "gcc",
             "args": [
                 "-o",
-                "bin/game.exe",
+                "bin/TheGreenSheep.exe",
                 "src/main.c",
                 "-lallegro",
                 "-lallegro_main",
