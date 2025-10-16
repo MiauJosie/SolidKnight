@@ -7,9 +7,11 @@ typedef struct Level Level;
 
 typedef struct
 {
-    Vector2 position;
+    Vector2 position; // onde desenhar na tela
     int width;
     int height;
+    int sx; // qual tile pegar do tileset
+    int sy;
     Level *level;
 
     ALLEGRO_BITMAP *sprite;

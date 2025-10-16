@@ -1,5 +1,6 @@
 #include "actor.h"
 #include "level.h"
+#include <stdio.h>
 
 Actor *actor_create(Level *level, Vector2 position, int width, int height)
 {
@@ -32,10 +33,10 @@ Rectangle actor_get_bounds(Actor *actor)
 {
     Rectangle bounds;
 
-    bounds.left = actor->position.x;                   // top_left_x
-    bounds.top = actor->position.y;                    // top_left_y
-    bounds.right = actor->position.x + actor->width;   // width
-    bounds.bottom = actor->position.y + actor->height; // height
+    bounds.left = (int)actor->position.x;                   // top_left_x
+    bounds.top = (int)actor->position.y;                    // top_left_y
+    bounds.right = (int)actor->position.x + actor->width;   // width
+    bounds.bottom = (int)actor->position.y + actor->height; // height
 
     return bounds;
 }
@@ -43,10 +44,20 @@ Rectangle actor_get_bounds(Actor *actor)
 // Ele fala: "Colidiu aqui?!?!"
 bool actor_collide_at(Actor *actor, Vector2 position)
 {
+
+    // If no level, no collision
+    if (actor->level == NULL)
+    {
+        return false;
+    }
+
     Vector2 original_pos = actor->position;
     actor->position = position;
     Rectangle beiradinha_do_ator = actor_get_bounds(actor);
     actor->position = original_pos;
+
+    printf("Actor bounds: left=%d, top=%d, right=%d, bottom=%d\n",
+           beiradinha_do_ator.left, beiradinha_do_ator.top, beiradinha_do_ator.right, beiradinha_do_ator.bottom);
 
     Solid **solids = level_get_solids(actor->level);
     int solid_count = level_get_solid_count(actor->level);
@@ -54,6 +65,12 @@ bool actor_collide_at(Actor *actor, Vector2 position)
     for (int i = 0; i < solid_count; i++)
     {
         Rectangle solid_bounds = solid_get_bounds(solids[i]);
+
+        if (rectangles_intersect(beiradinha_do_ator, solid_bounds))
+        {
+            printf("COLLISION! Solid bounds: left=%d, top=%d, right=%d, bottom=%d\n",
+                   solid_bounds.left, solid_bounds.top, solid_bounds.right, solid_bounds.bottom);
+        }
 
         if (solids[i]->is_collidable && rectangles_intersect(beiradinha_do_ator, solid_bounds))
         {
@@ -86,6 +103,11 @@ void actor_move_y(Actor *actor, float amount)
     }
 }
 
+void actor_set_facing(Actor *actor, bool value)
+{
+    actor->is_facing_right = value;
+}
+
 void actor_draw(Actor *actor)
 {
     if (actor->sprite == NULL)
@@ -94,5 +116,5 @@ void actor_draw(Actor *actor)
     }
 
     int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
-    al_draw_bitmap(actor->sprite, actor->position.x, actor->position.y, flags);
+    al_draw_bitmap(actor->sprite, (int)actor->position.x, (int)actor->position.y, flags);
 }

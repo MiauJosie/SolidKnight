@@ -1,4 +1,5 @@
 #include "solid.h"
+#include "level.h"
 #include <allegro5/allegro5.h>
 
 Solid *solid_create(Level *level, Vector2 position, int width, int height, bool is_collidable)
@@ -31,10 +32,10 @@ Rectangle solid_get_bounds(Solid *solid)
 {
     Rectangle bounds;
 
-    bounds.left = solid->position.x;                   // top_left_x
-    bounds.top = solid->position.y;                    // top_left_y
-    bounds.right = solid->position.x + solid->width;   // width
-    bounds.bottom = solid->position.y + solid->height; // height
+    bounds.left = (int)solid->position.x;                   // top_left_x
+    bounds.top = (int)solid->position.y;                    // top_left_y
+    bounds.right = (int)solid->position.x + solid->width;   // width
+    bounds.bottom = (int)solid->position.y + solid->height; // height
 
     return bounds;
 }
@@ -45,6 +46,6 @@ void solid_draw(Solid *solid)
     {
         return;
     }
-
-    al_draw_bitmap(solid->sprite, solid->position.x, solid->position.y, 0);
+    // This draws only a specific REGION of the bitmap
+    al_draw_bitmap_region(solid->sprite, solid->sx, solid->sy, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
 }

@@ -13,6 +13,7 @@
                 "src/level.c",
                 "src/solid.c",
                 "src/types.c",
+                "src/player.c",
                 "-lallegro",
                 "-lallegro_main",
                 "-lallegro_primitives",

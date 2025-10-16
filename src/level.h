@@ -2,9 +2,9 @@
 #include "solid.h"
 #include "actor.h"
 
-#define MAX_ACTORS 100
-#define MAX_SOLIDS 100
-#define TITLE_SIZE 8
+#define MAX_ACTORS 1000
+#define MAX_SOLIDS 1000
+#define TILE_SIZE 8
 
 typedef struct Level
 {
