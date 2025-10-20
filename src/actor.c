@@ -73,11 +73,13 @@ bool actor_collide_at(Actor *actor, Vector2 position)
 }
 
 // Remou, puxou, passou... ?
-void actor_move_x(Actor *actor, float amount)
+bool actor_move_x(Actor *actor, float amount)
 {
     int pixels = (int)amount;
     int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
                                                : 0;
+
+    bool hit_something = false;
 
     for (int i = 0; i < abs(pixels); i++)
     {
@@ -89,21 +91,24 @@ void actor_move_x(Actor *actor, float amount)
         }
         else
         {
-            return;
+            hit_something = true;
+            break;
         }
     }
+
+    return hit_something = true;
 }
 
-void actor_move_y(Actor *actor, float amount)
+bool actor_move_y(Actor *actor, float amount)
 {
     int pixels = (int)amount;
     int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
                                                : 0;
+    bool hit_something = false;
 
     for (int i = 0; i < abs(pixels); i++)
     {
-
-        Vector2 test_pos = {actor->position.x, actor->position.y + amount};
+        Vector2 test_pos = {actor->position.x, actor->position.y + sign};
 
         if (!actor_collide_at(actor, test_pos))
         {
@@ -111,9 +116,12 @@ void actor_move_y(Actor *actor, float amount)
         }
         else
         {
-            return;
+            hit_something = true;
+            break;
         }
     }
+
+    return hit_something;
 }
 
 void actor_set_facing(Actor *actor, bool value)

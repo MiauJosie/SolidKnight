@@ -9,6 +9,7 @@ typedef struct
 
     Vector2 velocity;
     float speed;
+    float max_speed;
     float jump_force;
     float gravity_force;
     bool is_on_ground;

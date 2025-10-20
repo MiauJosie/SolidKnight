@@ -19,8 +19,8 @@ typedef struct
 Actor *actor_create(Level *level, Vector2 position, int with, int height);
 void actor_destroy(Actor *actor);
 
-void actor_move_x(Actor *actor, float amount);
-void actor_move_y(Actor *actor, float amount);
+bool actor_move_x(Actor *actor, float amount);
+bool actor_move_y(Actor *actor, float amount);
 void actor_draw(Actor *actor);
 
 Rectangle actor_get_bounds(Actor *actor);

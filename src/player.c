@@ -22,8 +22,9 @@ Player *player_create(Level *level, Vector2 position)
     // Syntatic Sugar pra criar uma variável sem dar nome
     player->velocity = (Vector2){0, 0};
     player->speed = 2.0f;
-    player->jump_force = -3.0f;
-    player->gravity_force = 0.1f;
+    player->max_speed = 10.0f;
+    player->jump_force = -6.0f;
+    player->gravity_force = 0.5f;
     player->is_on_ground = false;
     player->is_jump_held = false;
 
@@ -38,16 +39,19 @@ void player_update(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
     handle_jump(player, keys);
     handle_gravity(player);
 
-    printf("VELOCITY Y: %f\n", player->velocity.y);
+    printf("VEL Y: %f\n", player->velocity.y);
     actor_move_x(player->actor, player->velocity.x);
-    actor_move_y(player->actor, player->velocity.y);
+    bool hit_ground = actor_move_y(player->actor, player->velocity.y);
 
-    Vector2 check_below = {player->actor->position.x, player->actor->position.y + 1};
-    player->is_on_ground = actor_collide_at(player->actor, check_below);
-
-    if (player->is_on_ground && player->velocity.y > 0)
+    if (hit_ground && player->velocity.y > 0)
     {
+        player->is_on_ground = true;
         player->velocity.y = 0;
+    }
+    else
+    {
+        Vector2 check_below = {player->actor->position.x, player->actor->position.y + 1};
+        player->is_on_ground = actor_collide_at(player->actor, check_below);
     }
 }
 
@@ -77,31 +81,41 @@ void handle_jump(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
     }
 }
 
+// A ascenção e a queda...
 void handle_gravity(Player *player)
 {
-    printf("IS ON GROUND: %d | ", player->is_on_ground);
+    printf("on ground: %d | ", player->is_on_ground);
     if (!player->is_on_ground)
     {
         float gravity_multiplier = 1.0f;
 
         if (player->velocity.y < 0)
         {
-            gravity_multiplier = player->is_jump_held ? 0.2f : 0.7f;
+            gravity_multiplier = player->is_jump_held ? 0.5f : 0.8f;
+            printf("gm: %f | ", gravity_multiplier);
         }
         else
         {
-            if (player->velocity.y < 4.0f)
+            if (player->velocity.y < 2.0f)
             {
                 gravity_multiplier = 0.9f;
+                printf("gm: %f | ", gravity_multiplier);
             }
-            else if (player->velocity.y > 0.5f)
+            else if (player->velocity.y > 2.0f && player->velocity.y < 6.0)
             {
+                gravity_multiplier = 1.0f;
+                printf("gm: %f | ", gravity_multiplier);
+            }
+            else if (player->velocity.y > 6.0f)
+            {
+                printf("FASTFALL ON ");
                 gravity_multiplier = 1.5f;
+                printf("gm: %f | ", gravity_multiplier);
             }
         }
 
         float gravity = player->gravity_force * gravity_multiplier;
-        player->velocity.y = get_clamped(player->velocity.y + gravity, -20.0f, 5.0f);
+        player->velocity.y = get_clamped(player->velocity.y + gravity, -player->max_speed, player->max_speed);
     }
     else
     {
