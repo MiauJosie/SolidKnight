@@ -20,7 +20,9 @@ Level *level_create(void)
 void level_destroy(Level *level)
 {
     if (!level)
+    {
         return;
+    }
 
     for (int i = 0; i < level->actor_count; i++)
     {
