@@ -76,7 +76,7 @@ void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *til
     FILE *file = fopen(csv_path, "r");
     if (!file)
     {
-        printf("Warning: Map file not found at %s\n", csv_path);
+        printf("Map file not found at %s\n", csv_path);
         return;
     }
 
@@ -102,7 +102,6 @@ void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *til
                 Solid *solid = solid_create(level, position, TILE_SIZE, TILE_SIZE, true);
                 solid->sprite = tileset;
 
-                // Calculate source rect from tile_id
                 int tile_x = (tile_id % tiles_per_row) * TILE_SIZE;
                 int tile_y = (tile_id / tiles_per_row) * TILE_SIZE;
 
@@ -126,19 +125,16 @@ void level_update(Level *level)
 {
     for (int i = 0; i < level->actor_count; i++)
     {
-        // Add actor update logic here if needed
     }
 }
 
 void level_draw(Level *level)
 {
-    // Draw solids first (background)
     for (int i = 0; i < level->solid_count; i++)
     {
         solid_draw(level->solids[i]);
     }
 
-    // Draw actors on top
     for (int i = 0; i < level->actor_count; i++)
     {
         actor_draw(level->actors[i]);

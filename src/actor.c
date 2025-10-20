@@ -33,10 +33,10 @@ Rectangle actor_get_bounds(Actor *actor)
 {
     Rectangle bounds;
 
-    bounds.left = (int)actor->position.x;                   // top_left_x
-    bounds.top = (int)actor->position.y;                    // top_left_y
-    bounds.right = (int)actor->position.x + actor->width;   // width
-    bounds.bottom = (int)actor->position.y + actor->height; // height
+    bounds.left = (int)actor->position.x;
+    bounds.top = (int)actor->position.y;
+    bounds.right = (int)actor->position.x + actor->width;
+    bounds.bottom = (int)actor->position.y + actor->height;
 
     return bounds;
 }
@@ -45,7 +45,6 @@ Rectangle actor_get_bounds(Actor *actor)
 bool actor_collide_at(Actor *actor, Vector2 position)
 {
 
-    // If no level, no collision
     if (actor->level == NULL)
     {
         return false;
@@ -56,21 +55,12 @@ bool actor_collide_at(Actor *actor, Vector2 position)
     Rectangle beiradinha_do_ator = actor_get_bounds(actor);
     actor->position = original_pos;
 
-    printf("Actor bounds: left=%d, top=%d, right=%d, bottom=%d\n",
-           beiradinha_do_ator.left, beiradinha_do_ator.top, beiradinha_do_ator.right, beiradinha_do_ator.bottom);
-
     Solid **solids = level_get_solids(actor->level);
     int solid_count = level_get_solid_count(actor->level);
 
     for (int i = 0; i < solid_count; i++)
     {
         Rectangle solid_bounds = solid_get_bounds(solids[i]);
-
-        if (rectangles_intersect(beiradinha_do_ator, solid_bounds))
-        {
-            printf("COLLISION! Solid bounds: left=%d, top=%d, right=%d, bottom=%d\n",
-                   solid_bounds.left, solid_bounds.top, solid_bounds.right, solid_bounds.bottom);
-        }
 
         if (solids[i]->is_collidable && rectangles_intersect(beiradinha_do_ator, solid_bounds))
         {
@@ -85,21 +75,44 @@ bool actor_collide_at(Actor *actor, Vector2 position)
 // Remou, puxou, passou... ?
 void actor_move_x(Actor *actor, float amount)
 {
-    Vector2 test_pos = {actor->position.x + amount, actor->position.y};
+    int pixels = (int)amount;
+    int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
+                                               : 0;
 
-    if (!actor_collide_at(actor, test_pos))
+    for (int i = 0; i < abs(pixels); i++)
     {
-        actor->position.x += amount;
+        Vector2 test_pos = {actor->position.x + sign, actor->position.y};
+
+        if (!actor_collide_at(actor, test_pos))
+        {
+            actor->position.x += sign;
+        }
+        else
+        {
+            return;
+        }
     }
 }
 
 void actor_move_y(Actor *actor, float amount)
 {
-    Vector2 test_pos = {actor->position.x, actor->position.y + amount};
+    int pixels = (int)amount;
+    int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
+                                               : 0;
 
-    if (!actor_collide_at(actor, test_pos))
+    for (int i = 0; i < abs(pixels); i++)
     {
-        actor->position.y += amount;
+
+        Vector2 test_pos = {actor->position.x, actor->position.y + amount};
+
+        if (!actor_collide_at(actor, test_pos))
+        {
+            actor->position.y += sign;
+        }
+        else
+        {
+            return;
+        }
     }
 }
 

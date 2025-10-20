@@ -7,7 +7,7 @@
             "command": "gcc",
             "args": [
                 "-o",
-                "bin/TheGreenSheep.exe",
+                "bin/SolidKnight.exe",
                 "src/main.c",
                 "src/actor.c",
                 "src/level.c",

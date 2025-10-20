@@ -3,16 +3,16 @@
 
 typedef struct
 {
-    float x; // Use float
+    float x;
     float y;
 } Vector2;
 
 typedef struct
 {
-    int left;   // top_left_x
-    int top;    // top_left_y
-    int right;  // width
-    int bottom; // height
+    int left;
+    int top;
+    int right;
+    int bottom;
 } Rectangle;
 
 // funções para vetor2
@@ -24,3 +24,5 @@ Vector2 vector2_scale(Vector2 v, float scale);
 bool rectangles_intersect(Rectangle a, Rectangle b);
 int rectangle_width(Rectangle r);
 int rectangle_height(Rectangle r);
+
+float get_clamped(float value, float min, float max);
