@@ -16,6 +16,7 @@
         "valarray": "c",
         "cstdlib": "c",
         "cmath": "c",
-        "complex": "c"
+        "complex": "c",
+        "allegro_primitives.h": "c"
     }
 }

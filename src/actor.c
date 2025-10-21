@@ -1,6 +1,7 @@
 #include "actor.h"
 #include "level.h"
 #include <stdio.h>
+#include <allegro5/allegro_primitives.h>
 
 Actor *actor_create(Level *level, Vector2 position, int width, int height)
 {
@@ -133,7 +134,11 @@ void actor_draw(Actor *actor)
     {
         return;
     }
-
+    float sprite_x = actor->position.x + actor->sprite_offset.x;
+    float sprite_y = actor->position.y + actor->sprite_offset.y;
     int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
-    al_draw_bitmap(actor->sprite, (int)actor->position.x, (int)actor->position.y, flags);
+    al_draw_bitmap(actor->sprite, (int)sprite_x, (int)sprite_y, flags);
+
+    // hitbox for debbuging
+    // al_draw_rectangle(actor->position.x, actor->position.y, actor->position.x + actor->width, actor->position.y + actor->height, al_map_rgb(255, 0, 0), 1.0f);
 }

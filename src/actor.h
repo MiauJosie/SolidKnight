@@ -11,6 +11,10 @@ typedef struct
     int height;
     Level *level;
 
+    int sprite_width;
+    int sprite_height;
+    Vector2 sprite_offset;
+
     ALLEGRO_BITMAP *sprite;
     bool is_facing_right;
     bool is_collidable;

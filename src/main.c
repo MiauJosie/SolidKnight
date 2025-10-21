@@ -57,7 +57,7 @@ int main(void)
     ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 16, 0);
     must_init(font, "font");
 
-    ALLEGRO_BITMAP *player_sprite = al_load_bitmap("data/player.png");
+    ALLEGRO_BITMAP *player_sprite = al_load_bitmap("data/player_static.png");
     must_init(player_sprite, "player sprite");
 
     ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/tileset.png");

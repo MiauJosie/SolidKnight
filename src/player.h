@@ -8,10 +8,10 @@ typedef struct
     Actor *actor;
 
     Vector2 velocity;
-    float speed;
-    float max_speed;
-    float jump_force;
-    float gravity_force;
+    float pallas_time;
+    float pallas_counter;
+    float jump_buffer_time;
+    float jump_buffer_counter;
     bool is_on_ground;
     bool is_jump_held;
 } Player;
