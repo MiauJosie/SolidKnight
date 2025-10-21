@@ -67,3 +67,19 @@ float get_clamped(float value, float min, float max)
         return value;
     }
 }
+
+float sign_here_please(float value)
+{
+    if (value > 0)
+    {
+        return 1.0f;
+    }
+    else if (value < 0)
+    {
+        return -1.0f;
+    }
+    else
+    {
+        return 0.0f;
+    }
+}

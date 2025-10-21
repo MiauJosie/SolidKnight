@@ -76,8 +76,7 @@ bool actor_collide_at(Actor *actor, Vector2 position)
 bool actor_move_x(Actor *actor, float amount)
 {
     int pixels = (int)amount;
-    int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
-                                               : 0;
+    int sign = (int)sign_here_please(pixels);
 
     bool hit_something = false;
 
@@ -102,8 +101,7 @@ bool actor_move_x(Actor *actor, float amount)
 bool actor_move_y(Actor *actor, float amount)
 {
     int pixels = (int)amount;
-    int sign = (pixels > 0) ? 1 : (pixels < 0) ? -1
-                                               : 0;
+    int sign = (int)sign_here_please(pixels);
     bool hit_something = false;
 
     for (int i = 0; i < abs(pixels); i++)

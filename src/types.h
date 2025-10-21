@@ -26,3 +26,4 @@ int rectangle_width(Rectangle r);
 int rectangle_height(Rectangle r);
 
 float get_clamped(float value, float min, float max);
+float sign_here_please(float value);
