@@ -10,9 +10,6 @@ typedef struct
     int width;
     int height;
     Level *level;
-
-    int sprite_width;
-    int sprite_height;
     Vector2 sprite_offset;
 
     ALLEGRO_BITMAP *sprite;

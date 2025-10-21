@@ -6,16 +6,16 @@
 #include <allegro5/allegro5.h>
 
 #define MAX_SPEED 10.0f
-#define SPEED 2.5f
+#define SPEED 1.7f
 #define JUMP_FORCE -4.0f
 #define JUMP_X_BOOST 3.0f
 #define GRAVITY_FORCE 0.4f
 #define AIR_ACCEL 0.2f
-#define GROUND_ACCEL 0.3f
+#define GROUND_ACCEL 0.4f
 #define GROUND_FRICTION 0.4f
 #define JUMP_HELD_GRAV_MULT 0.6f
 #define DEFAULT_GRAV_MULT 1.0f
-#define PEAK_GRAV_MULT 2.0f
+#define PEAK_GRAV_MULT 1.6f
 #define INIT_GRAV_MULT 0.8f
 #define FAST_FALL_GRAV_MULT 1.3f
 
@@ -34,18 +34,15 @@ Player *player_create(Level *level, Vector2 position)
         return NULL;
     }
 
-    player->actor->sprite_width = 48;
-    player->actor->sprite_height = 48;
-
     player->actor->sprite_offset.x = -20;
     player->actor->sprite_offset.y = -18;
 
     player->velocity = (Vector2){0, 0};
     player->is_on_ground = false;
     player->is_jump_held = false;
-    player->pallas_time = 6.0f;
+    player->pallas_time = 7.0f;
     player->pallas_counter = 0;
-    player->jump_buffer_time = 6.0f;
+    player->jump_buffer_time = 7.0f;
     player->jump_buffer_counter = 0;
 
     return player;
@@ -103,22 +100,24 @@ void handle_movement(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
         actor_set_facing(player->actor, true);
     }
 
-    float acceleration = player->is_on_ground ? GROUND_ACCEL : AIR_ACCEL;
-
     if (target_velocity_x == 0 && player->is_on_ground)
     {
-        float friction = GROUND_FRICTION;
-        if (fabs(player->velocity.x) > friction)
-        {
-            player->velocity.x -= sign_here_please(player->velocity.x) * friction;
-        }
-        else
+        player->velocity.x *= (1.0f - GROUND_FRICTION);
+
+        if (fabs(player->velocity.x) < 0.1f)
         {
             player->velocity.x = 0;
         }
     }
-    else
+    else if (target_velocity_x != 0)
     {
+        float acceleration = player->is_on_ground ? GROUND_ACCEL : AIR_ACCEL;
+
+        if (sign_here_please(target_velocity_x) != sign_here_please(player->velocity.x) && player->velocity.x != 0)
+        {
+            acceleration *= 2.5f;
+        }
+
         float max_speed_change = acceleration;
         float velocity_diff = target_velocity_x - player->velocity.x;
         float actual_change = get_clamped(velocity_diff, -max_speed_change, max_speed_change);
@@ -129,7 +128,7 @@ void handle_movement(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
 
 void handle_jump(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
 {
-    bool jump_pressed = al_key_down(keys, ALLEGRO_KEY_W);
+    bool jump_pressed = (al_key_down(keys, ALLEGRO_KEY_W) || al_key_down(keys, ALLEGRO_KEY_UP));
 
     if (jump_pressed && !player->is_jump_held)
     {
@@ -169,10 +168,12 @@ void handle_gravity(Player *player)
     {
         float gravity_multiplier = 1.0f;
 
+        // to subindo!
         if (player->velocity.y < 0)
         {
             gravity_multiplier = player->is_jump_held ? JUMP_HELD_GRAV_MULT : PEAK_GRAV_MULT;
         }
+        // se eu não to subindo...
         else
         {
             if (player->velocity.y < 1.5f)
