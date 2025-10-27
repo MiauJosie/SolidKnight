@@ -2,12 +2,23 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "create bin directory",
+            "type": "shell",
+            "command": "mkdir",
+            "args": [
+                "-p",
+                "bin"
+            ],
+            "detail": "Create bin directory if it doesn't exist"
+        },
+        {
             "label": "build",
             "type": "shell",
             "command": "gcc",
             "args": [
+                "-g",
                 "-o",
-                "bin/SolidKnight.exe",
+                "bin/SolidKnight",
                 "src/main.c",
                 "src/actor.c",
                 "src/level.c",
@@ -15,13 +26,16 @@
                 "src/types.c",
                 "src/player.c",
                 "-lallegro",
-                "-lallegro_main",
                 "-lallegro_primitives",
                 "-lallegro_image",
                 "-lallegro_font",
                 "-lallegro_ttf",
                 "-lallegro_audio",
-                "-lallegro_acodec"
+                "-lallegro_acodec",
+                "-lm",
+                "-Wall",
+                "-Wextra",
+                "-std=c11"
             ],
             "group": {
                 "kind": "build",
@@ -29,7 +43,31 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "dependsOn": [
+                "create bin directory"
+            ],
+            "detail": "Build SolidKnight for Linux"
+        },
+        {
+            "label": "build and run",
+            "type": "shell",
+            "command": "./bin/SolidKnight",
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": [],
+            "detail": "Build and run the game"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "bin"
+            ],
+            "detail": "Clean build artifacts"
         }
     ]
 }

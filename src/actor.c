@@ -26,7 +26,7 @@ void actor_destroy(Actor *actor)
 {
     if (actor)
     {
-        free(actor);
+        // free(actor);
     }
 }
 
@@ -96,7 +96,7 @@ bool actor_move_x(Actor *actor, float amount)
         }
     }
 
-    return hit_something = true;
+    return hit_something;
 }
 
 bool actor_move_y(Actor *actor, float amount)

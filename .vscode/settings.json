@@ -17,6 +17,8 @@
         "cstdlib": "c",
         "cmath": "c",
         "complex": "c",
-        "allegro_primitives.h": "c"
+        "allegro_primitives.h": "c",
+        "ranges": "c",
+        "flat_map": "c"
     }
 }

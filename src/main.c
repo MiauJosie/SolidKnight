@@ -15,7 +15,7 @@
 #include <math.h>
 
 #define VIRTUAL_WIDTH 320
-#define VIRTUAL_HEIGHT 180
+#define VIRTUAL_HEIGHT 184
 
 #define SCALE 4
 #define WINDOW_W (VIRTUAL_WIDTH * SCALE)
@@ -60,13 +60,13 @@ int main(void)
     ALLEGRO_BITMAP *player_sprite = al_load_bitmap("data/player_static.png");
     must_init(player_sprite, "player sprite");
 
-    ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/tileset.png");
+    ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/Tileset-Forest-Ground-8x8.png");
     must_init(level_sprite, "level sprite");
 
     Level *level = level_create();
-    level_load_from_csv(level, "data/MAP.csv", level_sprite);
+    level_load_from_csv(level, "data/MAPINHO.csv", level_sprite);
 
-    Vector2 player_pos = {100, 100};
+    Vector2 player_pos = {20, 80};
     Player *player = player_create(level, player_pos);
     player->actor->sprite = player_sprite;
     level_add_actor(level, player->actor);
@@ -111,7 +111,7 @@ int main(void)
         if (redraw && al_event_queue_is_empty(queue))
         {
             al_set_target_bitmap(buffer);
-            al_clear_to_color(al_map_rgb(100, 149, 237));
+            al_clear_to_color(al_map_rgb(8, 22, 43));
 
             level_draw(level);
             player_draw(player);
