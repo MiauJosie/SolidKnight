@@ -1,4 +1,7 @@
 #include "types.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 // VECTORRRRRRRR!!!
 // DIREÇÃO E MAGNITUDE!
 
@@ -82,4 +85,13 @@ float sign_here_please(float value)
     {
         return 0.0f;
     }
+}
+
+float move_towards(float current, float target, float max_delta)
+{
+    if (fabs(target - current) <= max_delta)
+    {
+        return target;
+    }
+    return current + sign_here_please(target - current) * max_delta;
 }

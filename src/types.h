@@ -25,5 +25,7 @@ bool rectangles_intersect(Rectangle a, Rectangle b);
 int rectangle_width(Rectangle r);
 int rectangle_height(Rectangle r);
 
+// outras funções
 float get_clamped(float value, float min, float max);
 float sign_here_please(float value);
+float move_towards(float current, float target, float max_delta);

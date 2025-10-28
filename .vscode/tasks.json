@@ -47,7 +47,7 @@
             "dependsOn": [
                 "create bin directory"
             ],
-            "detail": "Build SolidKnight for Linux"
+            "detail": "Build SolidKnight"
         },
         {
             "label": "build and run",
@@ -68,6 +68,20 @@
                 "bin"
             ],
             "detail": "Clean build artifacts"
-        }
+        },
+        {
+            "label": "package",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "mkdir -p dist/SolidKnight && cp bin/SolidKnight dist/SolidKnight/ && cp -r data dist/SolidKnight/ && cd dist && tar -czf SolidKnight.tar.gz SolidKnight && echo 'Package created: dist/SolidKnight.tar.gz'"
+            ],
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": [],
+            "detail": "Package the game for distribution on linux"
+        },
     ]
 }

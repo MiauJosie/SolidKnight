@@ -7,6 +7,7 @@ typedef struct Level Level;
 typedef struct
 {
     Vector2 position;
+    Vector2 remainder;
     int width;
     int height;
     Level *level;
@@ -20,8 +21,8 @@ typedef struct
 Actor *actor_create(Level *level, Vector2 position, int with, int height);
 void actor_destroy(Actor *actor);
 
-bool actor_move_x(Actor *actor, float amount);
-bool actor_move_y(Actor *actor, float amount);
+void actor_move_x(Actor *actor, float amount);
+void actor_move_y(Actor *actor, float amount);
 void actor_draw(Actor *actor);
 
 Rectangle actor_get_bounds(Actor *actor);

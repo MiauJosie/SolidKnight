@@ -13,6 +13,7 @@ Actor *actor_create(Level *level, Vector2 position, int width, int height)
 
     actor->level = level;
     actor->position = position;
+    actor->remainder = (Vector2){0, 0};
     actor->width = width;
     actor->height = height;
     actor->is_collidable = true;
@@ -74,12 +75,13 @@ bool actor_collide_at(Actor *actor, Vector2 position)
 }
 
 // Remou, puxou, passou... ?
-bool actor_move_x(Actor *actor, float amount)
+void actor_move_x(Actor *actor, float amount)
 {
-    int pixels = (int)amount;
-    int sign = (int)sign_here_please(pixels);
+    actor->remainder.x += amount;
+    int pixels = (int)actor->remainder.x;
+    actor->remainder.x -= pixels;
 
-    bool hit_something = false;
+    int sign = (int)sign_here_please(pixels);
 
     for (int i = 0; i < abs(pixels); i++)
     {
@@ -91,19 +93,18 @@ bool actor_move_x(Actor *actor, float amount)
         }
         else
         {
-            hit_something = true;
             break;
         }
     }
-
-    return hit_something;
 }
 
-bool actor_move_y(Actor *actor, float amount)
+void actor_move_y(Actor *actor, float amount)
 {
-    int pixels = (int)amount;
+    actor->remainder.y += amount;
+    int pixels = (int)actor->remainder.y;
+    actor->remainder.y -= pixels;
+
     int sign = (int)sign_here_please(pixels);
-    bool hit_something = false;
 
     for (int i = 0; i < abs(pixels); i++)
     {
@@ -115,12 +116,9 @@ bool actor_move_y(Actor *actor, float amount)
         }
         else
         {
-            hit_something = true;
             break;
         }
     }
-
-    return hit_something;
 }
 
 void actor_set_facing(Actor *actor, bool value)
@@ -139,6 +137,5 @@ void actor_draw(Actor *actor)
     int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
     al_draw_bitmap(actor->sprite, (int)sprite_x, (int)sprite_y, flags);
 
-    // hitbox for debbuging
     // al_draw_rectangle(actor->position.x, actor->position.y, actor->position.x + actor->width, actor->position.y + actor->height, al_map_rgb(255, 0, 0), 1.0f);
 }

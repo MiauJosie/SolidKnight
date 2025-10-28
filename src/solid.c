@@ -46,6 +46,6 @@ void solid_draw(Solid *solid)
     {
         return;
     }
-    // This draws only a specific REGION of the bitmap
+
     al_draw_bitmap_region(solid->sprite, solid->sx, solid->sy, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
 }

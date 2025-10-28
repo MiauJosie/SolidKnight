@@ -15,11 +15,13 @@
 #include <math.h>
 
 #define VIRTUAL_WIDTH 320
-#define VIRTUAL_HEIGHT 184
+#define VIRTUAL_HEIGHT 180
 
 #define SCALE 4
 #define WINDOW_W (VIRTUAL_WIDTH * SCALE)
 #define WINDOW_H (VIRTUAL_HEIGHT * SCALE)
+
+#define TARGET_FPS (1.0f / 144.0f)
 
 void must_init(bool test, const char *description)
 {
@@ -41,7 +43,7 @@ int main(void)
     must_init(al_init_ttf_addon(), "ttf addon");
     must_init(al_init_font_addon(), "font addon");
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
+    ALLEGRO_TIMER *timer = al_create_timer(TARGET_FPS);
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
@@ -50,6 +52,7 @@ int main(void)
     al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
     ALLEGRO_DISPLAY *display = al_create_display(WINDOW_W, WINDOW_H);
     must_init(display, "display");
+    al_set_window_title(display, "SolidKnight");
 
     ALLEGRO_BITMAP *buffer = al_create_bitmap(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     must_init(buffer, "buffer");
@@ -64,7 +67,7 @@ int main(void)
     must_init(level_sprite, "level sprite");
 
     Level *level = level_create();
-    level_load_from_csv(level, "data/MAPINHO.csv", level_sprite);
+    level_load_from_csv(level, "data/level1.csv", level_sprite);
 
     Vector2 player_pos = {20, 80};
     Player *player = player_create(level, player_pos);
@@ -88,7 +91,7 @@ int main(void)
         if (event.type == ALLEGRO_EVENT_TIMER)
         {
             al_get_keyboard_state(&keys);
-            player_update(player, &keys);
+            player_update(player, &keys, TARGET_FPS);
             level_update(level);
             redraw = true;
         }
@@ -101,11 +104,16 @@ int main(void)
             else if (event.keyboard.keycode == ALLEGRO_KEY_F11)
             {
                 al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !(al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW));
+                al_acknowledge_resize(display);
             }
         }
         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             running = false;
+        }
+        else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+        {
+            al_acknowledge_resize(display);
         }
 
         if (redraw && al_event_queue_is_empty(queue))
