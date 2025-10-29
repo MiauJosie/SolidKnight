@@ -23,6 +23,9 @@
 
 #define TARGET_FPS (1.0f / 144.0f)
 
+#define ROOM_HEIGHT_TILES 23
+#define ROOM_HEIGHT_PIXELS (ROOM_HEIGHT_TILES * TILE_SIZE)
+
 void must_init(bool test, const char *description)
 {
     if (test)
@@ -66,13 +69,41 @@ int main(void)
     ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/Tileset-Forest-Ground-8x8.png");
     must_init(level_sprite, "level sprite");
 
-    Level *level = level_create();
-    level_load_from_csv(level, "data/level1.csv", level_sprite);
+    Level *level = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
+    level->camera_lerp_speed = 0.1f;
 
-    Vector2 player_pos = {20, 80};
+    Room *room1 = room_create(0, 0);
+    strcpy(room1->name, "Starting Room");
+    level_load_room_from_csv(level, room1, "data/levelforest-room1.csv", level_sprite);
+    level_add_room(level, room1);
+
+    Room *room2 = room_create(VIRTUAL_WIDTH, 0);
+    strcpy(room2->name, "Right Room");
+    level_load_room_from_csv(level, room2, "data/levelforest-room3.csv", level_sprite);
+    level_add_room(level, room2);
+
+    Room *room3 = room_create(0, ROOM_HEIGHT_PIXELS);
+    strcpy(room3->name, "Bottom Room");
+    level_load_room_from_csv(level, room3, "data/levelforest-room2.csv", level_sprite);
+    level_add_room(level, room3);
+
+    Room *room4 = room_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
+    strcpy(room4->name, "Bottom Right Room");
+    level_load_room_from_csv(level, room4, "data/levelforest-room4.csv", level_sprite);
+    level_add_room(level, room4);
+
+    Vector2 player_pos = {0, 112};
     Player *player = player_create(level, player_pos);
     player->actor->sprite = player_sprite;
     level_add_actor(level, player->actor);
+
+    level_update_current_room(level, player_pos);
+    if (level->current_room)
+    {
+        level->camera_position.x = level->current_room->x;
+        level->camera_position.y = level->current_room->y;
+        level->camera_target = level->camera_position;
+    }
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -92,14 +123,16 @@ int main(void)
         {
             al_get_keyboard_state(&keys);
             player_update(player, &keys, TARGET_FPS);
-            level_update(level);
+            level_update(level, player->actor->position, TARGET_FPS);
             redraw = true;
         }
         else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             {
-                running = false;
+                // running = false;
+                player->actor->position.x = 10;
+                player->actor->position.y = 112;
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_F11)
             {
@@ -116,13 +149,25 @@ int main(void)
             al_acknowledge_resize(display);
         }
 
+        // Rendering ...pipeline?
         if (redraw && al_event_queue_is_empty(queue))
         {
             al_set_target_bitmap(buffer);
-            al_clear_to_color(al_map_rgb(8, 22, 43));
+            al_clear_to_color(al_map_rgb(3, 1, 20));
+
+            // move todos os objetos no level por cam_pos pra aparecerem relativos à camera
+            Vector2 cam_pos = level_get_camera_position(level);
+            ALLEGRO_TRANSFORM transform;
+            al_identity_transform(&transform);
+            al_translate_transform(&transform, -cam_pos.x, -cam_pos.y);
+            al_use_transform(&transform);
 
             level_draw(level);
             player_draw(player);
+
+            // remove o efeito pra desenhar UI estática
+            al_identity_transform(&transform);
+            al_use_transform(&transform);
 
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));

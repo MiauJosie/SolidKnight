@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "level.h"
 
-Level *level_create(void)
+Level *level_create(int room_width, int room_height)
 {
     Level *level = malloc(sizeof(Level));
     if (!level)
@@ -12,7 +13,13 @@ Level *level_create(void)
     }
 
     level->actor_count = 0;
-    level->solid_count = 0;
+    level->room_count = 0;
+    level->current_room = NULL;
+    level->camera_position = (Vector2){0, 0};
+    level->camera_target = (Vector2){0, 0};
+    level->camera_lerp_speed = 0.1f;
+    level->room_width = room_width;
+    level->room_height = room_height;
 
     return level;
 }
@@ -29,9 +36,9 @@ void level_destroy(Level *level)
         actor_destroy(level->actors[i]);
     }
 
-    for (int i = 0; i < level->solid_count; i++)
+    for (int i = 0; i < level->room_count; i++)
     {
-        solid_destroy(level->solids[i]);
+        room_destroy(level->rooms[i]);
     }
 
     free(level);
@@ -45,35 +52,83 @@ void level_add_actor(Level *level, Actor *actor)
     }
 }
 
-void level_add_solid(Level *level, Solid *solid)
+Room *room_create(int x, int y)
 {
-    if (level->solid_count < MAX_SOLIDS)
+    Room *room = malloc(sizeof(Room));
+    if (!room)
     {
-        level->solids[level->solid_count++] = solid;
+        return NULL;
+    }
+
+    room->x = x;
+    room->y = y;
+    room->solid_count = 0;
+    strcpy(room->name, "Room Room");
+
+    return room;
+}
+
+void room_destroy(Room *room)
+{
+    if (!room)
+    {
+        return;
+    }
+
+    for (int i = 0; i < room->solid_count; i++)
+    {
+        solid_destroy(room->solids[i]);
+    }
+
+    free(room);
+}
+
+void room_add_solid(Room *room, Solid *solid)
+{
+    if (room->solid_count < MAX_SOLIDS)
+    {
+        room->solids[room->solid_count++] = solid;
     }
 }
 
-Actor **level_get_actors(Level *level)
+void level_add_room(Level *level, Room *room)
 {
-    return level->actors;
+    if (level->room_count < MAX_ROOMS)
+    {
+        level->rooms[level->room_count++] = room;
+    }
 }
 
-int level_get_actor_count(Level *level)
+Room *level_get_room_at(Level *level, Vector2 position)
 {
-    return level->actor_count;
+    for (int i = 0; i < level->room_count; i++)
+    {
+        Room *room = level->rooms[i];
+
+        if (position.x >= room->x && position.x < room->x + level->room_width && position.y >= room->y && position.y < room->y + level->room_height)
+        {
+            return room;
+        }
+    }
+
+    return NULL;
 }
 
-Solid **level_get_solids(Level *level)
+void level_update_current_room(Level *level, Vector2 player_position)
 {
-    return level->solids;
+    Room *new_room = level_get_room_at(level, player_position);
+
+    if (new_room && new_room != level->current_room)
+    {
+        level->current_room = new_room;
+        printf("Entered room: %s\n", new_room->name);
+
+        level->camera_target.x = new_room->x;
+        level->camera_target.y = new_room->y;
+    }
 }
 
-int level_get_solid_count(Level *level)
-{
-    return level->solid_count;
-}
-
-void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *tileset)
+void level_load_room_from_csv(Level *level, Room *room, const char *csv_path, ALLEGRO_BITMAP *tileset)
 {
     FILE *file = fopen(csv_path, "r");
     if (!file)
@@ -82,24 +137,27 @@ void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *til
         return;
     }
 
+    // guarda quantos tiles por linha podem ter no tileset (os nossos estão espaçados mas isso não é um problema
+    // porquê pegaremos apenas os IDs que tem tile de fato)
     int tileset_width = al_get_bitmap_width(tileset);
     int tiles_per_row = tileset_width / TILE_SIZE;
 
+    int y = 0; // index da linha
     char line[512];
-    int y = 0;
 
-    while (fgets(line, sizeof(line), file) && y < MAX_SOLIDS)
+    // lê cada linha do CSV
+    while (fgets(line, sizeof(line), file))
     {
-        int x = 0;
-        char *token = strtok(line, ",");
+        int x = 0; // index da coluna
+        char *id = strtok(line, ",");
 
-        while (token && x < MAX_SOLIDS)
+        while (id)
         {
-            int tile_id = atoi(token);
+            int tile_id = atoi(id);
 
             if (tile_id != -1)
             {
-                Vector2 position = {.x = x * TILE_SIZE, .y = y * TILE_SIZE};
+                Vector2 position = {.x = room->x + (x * TILE_SIZE), .y = room->y + (y * TILE_SIZE)};
 
                 Solid *solid = solid_create(level, position, TILE_SIZE, TILE_SIZE, true);
                 solid->sprite = tileset;
@@ -110,10 +168,10 @@ void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *til
                 solid->sx = tile_x;
                 solid->sy = tile_y;
 
-                level_add_solid(level, solid);
+                room_add_solid(room, solid);
             }
 
-            token = strtok(NULL, ",");
+            id = strtok(NULL, ","); // pega o próximo tile começando de onde parou
             x++;
         }
 
@@ -123,22 +181,72 @@ void level_load_from_csv(Level *level, const char *csv_path, ALLEGRO_BITMAP *til
     fclose(file);
 }
 
-void level_update(Level *level)
+void level_update_camera(Level *level, float delta_time)
 {
-    for (int i = 0; i < level->actor_count; i++)
+    (void)delta_time; // Não usado ainda
+
+    if (level->current_room == NULL)
     {
+        return;
     }
+
+    level->camera_position.x = move_towards(level->camera_position.x, level->camera_target.x, fabs(level->camera_target.x - level->camera_position.x) * level->camera_lerp_speed);
+
+    level->camera_position.y = move_towards(level->camera_position.y, level->camera_target.y, fabs(level->camera_target.y - level->camera_position.y) * level->camera_lerp_speed);
+}
+
+void level_update(Level *level, Vector2 player_position, float delta_time)
+{
+    level_update_current_room(level, player_position);
+    level_update_camera(level, delta_time);
 }
 
 void level_draw(Level *level)
 {
-    for (int i = 0; i < level->solid_count; i++)
+    if (level->current_room == NULL)
     {
-        solid_draw(level->solids[i]);
+        return;
+    }
+
+    for (int i = 0; i < level->room_count; i++)
+    {
+        if (level->rooms[i] == NULL)
+        {
+            return;
+        }
+        // Room *room = level->current_room;
+        Room *room = level->rooms[i];
+        for (int i = 0; i < room->solid_count; i++)
+        {
+            solid_draw(room->solids[i]);
+        }
     }
 
     for (int i = 0; i < level->actor_count; i++)
     {
         actor_draw(level->actors[i]);
     }
+}
+
+Vector2 level_get_camera_position(Level *level)
+{
+    return level->camera_position;
+}
+
+Solid **level_get_solids(Level *level)
+{
+    if (level->current_room)
+    {
+        return level->current_room->solids;
+    }
+    return NULL;
+}
+
+int level_get_solid_count(Level *level)
+{
+    if (level->current_room)
+    {
+        return level->current_room->solid_count;
+    }
+    return 0;
 }

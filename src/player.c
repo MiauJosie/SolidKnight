@@ -60,7 +60,7 @@ void player_update(Player *player, ALLEGRO_KEYBOARD_STATE *keys, float delta_tim
     handle_movement(player, keys, delta_time);
     handle_gravity(player, delta_time);
     apply_movement(player, delta_time);
-    printf("%f\n", player->velocity.y);
+    // printf("%f\n", player->velocity.y);
 }
 
 void handle_input(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
@@ -114,22 +114,22 @@ void check_collision(Player *player)
         if (player->velocity.x < 0 && nudge_left_distance > 0)
         {
             player->actor->position.x -= nudge_left_distance;
-            printf("nudged left %d pixels\n", nudge_left_distance);
+            // printf("nudged left %d pixels\n", nudge_left_distance);
         }
         else if (player->velocity.x > 0 && nudge_right_distance > 0)
         {
             player->actor->position.x += nudge_right_distance;
-            printf("nudged right %d pixels\n", nudge_right_distance);
+            // printf("nudged right %d pixels\n", nudge_right_distance);
         }
         else if (nudge_left_distance > 0 && (nudge_right_distance == 0 || nudge_left_distance < nudge_right_distance))
         {
             player->actor->position.x -= nudge_left_distance;
-            printf("nudged left %d pixels\n", nudge_left_distance);
+            // printf("nudged left %d pixels\n", nudge_left_distance);
         }
         else if (nudge_right_distance > 0)
         {
             player->actor->position.x += nudge_right_distance;
-            printf("nudged right %d pixels\n", nudge_right_distance);
+            // printf("nudged right %d pixels\n", nudge_right_distance);
         }
         else
         {
@@ -226,7 +226,7 @@ void handle_gravity(Player *player, float delta_time)
     if (player->is_on_ground && player->velocity.y >= 0)
     {
         player->velocity.y = GROUNDING_FORCE;
-        printf("grounded\n");
+        // printf("grounded\n");
         return;
     }
     else
@@ -236,11 +236,11 @@ void handle_gravity(Player *player, float delta_time)
         if (player->ended_jump_early && player->velocity.y < 0)
         {
             gravity *= JUMP_END_EARLY_GRAVITY_MODIFIER;
-            printf("high gravity\n");
+            // printf("high gravity\n");
         }
         else
         {
-            printf("normal gravity\n");
+            // printf("normal gravity\n");
         }
 
         player->velocity.y = move_towards(player->velocity.y, MAX_FALL_SPEED, gravity * delta_time);

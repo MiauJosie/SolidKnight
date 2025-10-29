@@ -32,10 +32,10 @@ Rectangle solid_get_bounds(Solid *solid)
 {
     Rectangle bounds;
 
-    bounds.left = (int)solid->position.x;                   // top_left_x
-    bounds.top = (int)solid->position.y;                    // top_left_y
-    bounds.right = (int)solid->position.x + solid->width;   // width
-    bounds.bottom = (int)solid->position.y + solid->height; // height
+    bounds.left = (int)solid->position.x;
+    bounds.top = (int)solid->position.y;
+    bounds.right = (int)solid->position.x + solid->width;
+    bounds.bottom = (int)solid->position.y + solid->height;
 
     return bounds;
 }
@@ -47,5 +47,6 @@ void solid_draw(Solid *solid)
         return;
     }
 
+    // Use float positions to prevent flickering with camera movement
     al_draw_bitmap_region(solid->sprite, solid->sx, solid->sy, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
 }
