@@ -24,13 +24,13 @@
 Player *player_create(Level *level, Vector2 position)
 {
     Player *player = malloc(sizeof(Player));
-    if (!player)
+    if (player == NULL)
     {
         return NULL;
     }
 
     player->actor = actor_create(level, position, 8, 14);
-    if (!player->actor)
+    if (player->actor == NULL)
     {
         free(player);
         return NULL;
@@ -47,6 +47,10 @@ Player *player_create(Level *level, Vector2 position)
     player->time_jump_pressed = INVALID_TIME;
     player->time = 0.0f;
 
+    player->idle_anim = NULL;
+    player->run_anim = NULL;
+    player->jump_anim = NULL;
+
     return player;
 }
 
@@ -61,6 +65,21 @@ void player_update(Player *player, ALLEGRO_KEYBOARD_STATE *keys, float delta_tim
     handle_gravity(player, delta_time);
     apply_movement(player, delta_time);
     // printf("%f\n", player->velocity.y);
+
+    if (!player->is_on_ground)
+    {
+        animator_play(player->actor->animator, player->jump_anim);
+    }
+    else if (fabs(player->velocity.x) > 0.1f)
+    {
+        animator_play(player->actor->animator, player->run_anim);
+    }
+    else
+    {
+        animator_play(player->actor->animator, player->idle_anim);
+    }
+
+    actor_update(player->actor, delta_time);
 }
 
 void handle_input(Player *player, ALLEGRO_KEYBOARD_STATE *keys)
@@ -269,7 +288,6 @@ void player_destroy(Player *player)
 {
     if (player)
     {
-        actor_destroy(player->actor);
         free(player);
     }
 }

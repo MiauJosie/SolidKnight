@@ -17,13 +17,16 @@ typedef struct
     float time_jump_pressed;
 
     float time;
+
+    Animation *idle_anim;
+    Animation *run_anim;
+    Animation *jump_anim;
 } Player;
 
 Player *player_create(Level *level, Vector2 position);
 void player_destroy(Player *player);
 void player_update(Player *player, ALLEGRO_KEYBOARD_STATE *keys, float delta_time);
 void player_draw(Player *player);
-
 void handle_input(Player *player, ALLEGRO_KEYBOARD_STATE *keys);
 void handle_gravity(Player *player, float delta_time);
 void handle_movement(Player *player, ALLEGRO_KEYBOARD_STATE *keys, float delta_time);

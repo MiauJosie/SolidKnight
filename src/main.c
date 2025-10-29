@@ -6,6 +6,7 @@
 #include "level.h"
 #include "types.h"
 #include "player.h"
+#include "animator.h"
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
@@ -63,11 +64,45 @@ int main(void)
     ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 16, 0);
     must_init(font, "font");
 
-    ALLEGRO_BITMAP *player_sprite = al_load_bitmap("data/player_static.png");
-    must_init(player_sprite, "player sprite");
+    ALLEGRO_BITMAP *player_static_sprite = al_load_bitmap("data/player_static.png");
+    must_init(player_static_sprite, "player static sprite");
+
+    ALLEGRO_BITMAP *player_spritesheet = al_load_bitmap("data/player_atlas.png");
+    must_init(player_spritesheet, "player spritesheet");
 
     ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/Tileset-Forest-Ground-8x8.png");
     must_init(level_sprite, "level sprite");
+
+    Animation *idle_anim = animation_create(
+        player_spritesheet,
+        48,    // frame_width
+        48,    // frame_height
+        4,     // frame_count
+        0,     // start_frame (frames 0-3 in spritesheet)
+        0.15f, // frame_duration (150ms per frame)
+        true   // loop
+    );
+
+    // E ele se tornou um rabisco, uma mera ilusão do seu passado glorioso... é o glorioso não tem jeito!
+    Animation *run_anim = animation_create(
+        player_spritesheet,
+        48,    // frame_width
+        48,    // frame_height
+        4,     // frame_count
+        4,     // start_frame (frames 4-11 in spritesheet)
+        0.10f, // frame_duration (80ms per frame - faster for running)
+        true   // loop
+    );
+
+    Animation *jump_anim = animation_create(
+        player_spritesheet,
+        48,    // frame_width
+        48,    // frame_height
+        4,     // frame_count
+        8,     // start_frame (frames 12-14 in spritesheet)
+        0.12f, // frame_duration
+        false  // don't loop - stay on last frame
+    );
 
     Level *level = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
     level->camera_lerp_speed = 0.1f;
@@ -92,10 +127,31 @@ int main(void)
     level_load_room_from_csv(level, room4, "data/levelforest-room4.csv", level_sprite);
     level_add_room(level, room4);
 
-    Vector2 player_pos = {0, 112};
+    Vector2 player_pos = {20, 112};
     Player *player = player_create(level, player_pos);
-    player->actor->sprite = player_sprite;
+
+    if (player == NULL)
+    {
+        printf("Failed to create player!\n");
+        return 1;
+    }
+    if (player->actor == NULL)
+    {
+        printf("Player actor is NULL!\n");
+        return 1;
+    }
+    if (player->actor->animator == NULL)
+    {
+        printf("Player animator is NULL!\n");
+        return 1;
+    }
+
+    player->actor->sprite = player_static_sprite;
     level_add_actor(level, player->actor);
+
+    player->idle_anim = idle_anim;
+    player->run_anim = run_anim;
+    player->jump_anim = jump_anim;
 
     level_update_current_room(level, player_pos);
     if (level->current_room)
@@ -131,7 +187,7 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             {
                 // running = false;
-                player->actor->position.x = 10;
+                player->actor->position.x = 20;
                 player->actor->position.y = 112;
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_F11)
@@ -192,9 +248,10 @@ int main(void)
     }
 
     player_destroy(player);
-    al_destroy_bitmap(player_sprite);
-    al_destroy_bitmap(buffer);
     level_destroy(level);
+
+    al_destroy_bitmap(player_static_sprite);
+    al_destroy_bitmap(buffer);
     al_destroy_font(font);
     al_destroy_display(display);
     al_destroy_timer(timer);

@@ -7,7 +7,7 @@
 Level *level_create(int room_width, int room_height)
 {
     Level *level = malloc(sizeof(Level));
-    if (!level)
+    if (level == NULL)
     {
         return NULL;
     }
@@ -26,7 +26,7 @@ Level *level_create(int room_width, int room_height)
 
 void level_destroy(Level *level)
 {
-    if (!level)
+    if (level == NULL)
     {
         return;
     }
@@ -55,7 +55,7 @@ void level_add_actor(Level *level, Actor *actor)
 Room *room_create(int x, int y)
 {
     Room *room = malloc(sizeof(Room));
-    if (!room)
+    if (room == NULL)
     {
         return NULL;
     }
@@ -70,7 +70,7 @@ Room *room_create(int x, int y)
 
 void room_destroy(Room *room)
 {
-    if (!room)
+    if (room == NULL)
     {
         return;
     }
@@ -118,20 +118,22 @@ void level_update_current_room(Level *level, Vector2 player_position)
 {
     Room *new_room = level_get_room_at(level, player_position);
 
-    if (new_room && new_room != level->current_room)
+    if (new_room == NULL || new_room == level->current_room)
     {
-        level->current_room = new_room;
-        printf("Entered room: %s\n", new_room->name);
-
-        level->camera_target.x = new_room->x;
-        level->camera_target.y = new_room->y;
+        return;
     }
+
+    level->current_room = new_room;
+    printf("Entered room: %s\n", new_room->name);
+
+    level->camera_target.x = new_room->x;
+    level->camera_target.y = new_room->y;
 }
 
 void level_load_room_from_csv(Level *level, Room *room, const char *csv_path, ALLEGRO_BITMAP *tileset)
 {
     FILE *file = fopen(csv_path, "r");
-    if (!file)
+    if (file == NULL)
     {
         printf("Map file not found at %s\n", csv_path);
         return;
@@ -165,8 +167,8 @@ void level_load_room_from_csv(Level *level, Room *room, const char *csv_path, AL
                 int tile_x = (tile_id % tiles_per_row) * TILE_SIZE;
                 int tile_y = (tile_id / tiles_per_row) * TILE_SIZE;
 
-                solid->sx = tile_x;
-                solid->sy = tile_y;
+                solid->source_x = tile_x;
+                solid->source_y = tile_y;
 
                 room_add_solid(room, solid);
             }
@@ -235,18 +237,19 @@ Vector2 level_get_camera_position(Level *level)
 
 Solid **level_get_solids(Level *level)
 {
-    if (level->current_room)
+    if (level->current_room == NULL)
     {
-        return level->current_room->solids;
+        return NULL;
     }
-    return NULL;
+
+    return level->current_room->solids;
 }
 
 int level_get_solid_count(Level *level)
 {
-    if (level->current_room)
+    if (level->current_room == NULL)
     {
-        return level->current_room->solid_count;
+        return 0;
     }
-    return 0;
+    return level->current_room->solid_count;
 }

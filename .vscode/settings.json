@@ -19,6 +19,9 @@
         "complex": "c",
         "allegro_primitives.h": "c",
         "ranges": "c",
-        "flat_map": "c"
+        "flat_map": "c",
+        "ios": "c",
+        "allegro_font.h": "c",
+        "allegro5.h": "c"
     }
 }

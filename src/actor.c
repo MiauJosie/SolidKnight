@@ -6,7 +6,7 @@
 Actor *actor_create(Level *level, Vector2 position, int width, int height)
 {
     Actor *actor = malloc(sizeof(Actor));
-    if (!actor)
+    if (actor == NULL)
     {
         return NULL;
     }
@@ -18,6 +18,7 @@ Actor *actor_create(Level *level, Vector2 position, int width, int height)
     actor->height = height;
     actor->is_collidable = true;
     actor->sprite = NULL;
+    actor->animator = animator_create();
     actor->is_facing_right = true;
 
     return actor;
@@ -25,10 +26,13 @@ Actor *actor_create(Level *level, Vector2 position, int width, int height)
 
 void actor_destroy(Actor *actor)
 {
-    if (actor)
+    if (actor == NULL)
     {
-        // free(actor);
+        return;
     }
+
+    animator_destroy(actor->animator);
+    free(actor);
 }
 
 Rectangle actor_get_bounds(Actor *actor)
@@ -126,6 +130,16 @@ void actor_set_facing(Actor *actor, bool value)
     actor->is_facing_right = value;
 }
 
+void actor_update(Actor *actor, float delta_time)
+{
+    if (actor->animator == NULL)
+    {
+        return;
+    }
+
+    animator_update(actor->animator, delta_time);
+}
+
 void actor_draw(Actor *actor)
 {
     if (actor->sprite == NULL)
@@ -135,8 +149,16 @@ void actor_draw(Actor *actor)
 
     float sprite_x = actor->position.x + actor->sprite_offset.x;
     float sprite_y = actor->position.y + actor->sprite_offset.y;
-    int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
-    al_draw_bitmap(actor->sprite, sprite_x, sprite_y, flags);
+
+    if (actor->animator != NULL && actor->animator->current_animation != NULL)
+    {
+        animator_draw(actor->animator, sprite_x, sprite_y, !actor->is_facing_right);
+    }
+    else
+    {
+        int flags = actor->is_facing_right ? 0 : ALLEGRO_FLIP_HORIZONTAL;
+        al_draw_bitmap(actor->sprite, sprite_x, sprite_y, flags);
+    }
 
     // al_draw_rectangle(actor->position.x, actor->position.y, actor->position.x + actor->width, actor->position.y + actor->height, al_map_rgb(255, 0, 0), 1.0f);
 }

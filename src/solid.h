@@ -10,8 +10,8 @@ typedef struct
     Vector2 position; // onde desenhar na tela
     int width;
     int height;
-    int sx; // qual tile pegar do tileset
-    int sy;
+    int source_x; // qual tile pegar do tileset
+    int source_y;
     Level *level;
 
     ALLEGRO_BITMAP *sprite;
@@ -20,6 +20,5 @@ typedef struct
 
 Solid *solid_create(Level *level, Vector2 position, int width, int height, bool is_collidable);
 void solid_destroy(Solid *solid);
-
 Rectangle solid_get_bounds(Solid *solid);
 void solid_draw(Solid *solid);

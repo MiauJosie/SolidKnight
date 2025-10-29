@@ -15,17 +15,12 @@ typedef struct
     int bottom;
 } Rectangle;
 
-// funções para vetor2
 Vector2 vector2_create(float x, float y);
 Vector2 vector2_add(Vector2 a, Vector2 b);
 Vector2 vector2_scale(Vector2 v, float scale);
-
-// funções para retângulo
 bool rectangles_intersect(Rectangle a, Rectangle b);
 int rectangle_width(Rectangle r);
 int rectangle_height(Rectangle r);
-
-// outras funções
 float get_clamped(float value, float min, float max);
 float sign_here_please(float value);
 float move_towards(float current, float target, float max_delta);

@@ -38,24 +38,17 @@ typedef struct Level
 
 Level *level_create(int room_width, int room_height);
 void level_destroy(Level *level);
-
 void level_add_actor(Level *level, Actor *actor);
-
 Room *room_create(int x, int y);
 void room_destroy(Room *room);
 void room_add_solid(Room *room, Solid *solid);
-
 void level_add_room(Level *level, Room *room);
 Room *level_get_room_at(Level *level, Vector2 position);
 void level_update_current_room(Level *level, Vector2 player_position);
-
 void level_load_room_from_csv(Level *level, Room *room, const char *csv_path, ALLEGRO_BITMAP *tileset);
-
 void level_update(Level *level, Vector2 player_position, float delta_time);
 void level_draw(Level *level);
-
 void level_update_camera(Level *level, float delta_time);
 Vector2 level_get_camera_position(Level *level);
-
 Solid **level_get_solids(Level *level);
 int level_get_solid_count(Level *level);

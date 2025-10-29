@@ -5,7 +5,7 @@
 Solid *solid_create(Level *level, Vector2 position, int width, int height, bool is_collidable)
 {
     Solid *solid = malloc(sizeof(Solid));
-    if (!solid)
+    if (solid == NULL)
     {
         return NULL;
     }
@@ -22,10 +22,12 @@ Solid *solid_create(Level *level, Vector2 position, int width, int height, bool 
 
 void solid_destroy(Solid *solid)
 {
-    if (solid)
+    if (solid == NULL)
     {
-        free(solid);
+        return;
     }
+
+    free(solid);
 }
 
 Rectangle solid_get_bounds(Solid *solid)
@@ -48,5 +50,5 @@ void solid_draw(Solid *solid)
     }
 
     // Use float positions to prevent flickering with camera movement
-    al_draw_bitmap_region(solid->sprite, solid->sx, solid->sy, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
+    al_draw_bitmap_region(solid->sprite, solid->source_x, solid->source_y, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
 }

@@ -25,6 +25,7 @@
                 "src/solid.c",
                 "src/types.c",
                 "src/player.c",
+                "src/animator.c",
                 "-lallegro",
                 "-lallegro_primitives",
                 "-lallegro_image",
