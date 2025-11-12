@@ -64,7 +64,7 @@ void player_update(Player *player, ALLEGRO_KEYBOARD_STATE *keys, float delta_tim
     handle_movement(player, keys, delta_time);
     handle_gravity(player, delta_time);
     apply_movement(player, delta_time);
-    // printf("%f\n", player->velocity.y);
+    // printf("%f\n", player->velocity.y);d
 
     if (!player->is_on_ground)
     {

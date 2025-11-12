@@ -15,7 +15,7 @@ typedef struct
     Vector2 sprite_offset;
     ALLEGRO_BITMAP *sprite; // Não usamos mais
 
-    Animator *animator; // Animator is the new black!
+    Animator *animator; // Animator is the new sprite!
 
     bool is_facing_right;
     bool is_collidable;

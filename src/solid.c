@@ -49,6 +49,5 @@ void solid_draw(Solid *solid)
         return;
     }
 
-    // Use float positions to prevent flickering with camera movement
     al_draw_bitmap_region(solid->sprite, solid->source_x, solid->source_y, TILE_SIZE, TILE_SIZE, solid->position.x, solid->position.y, 0);
 }

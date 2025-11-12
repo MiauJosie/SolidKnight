@@ -61,7 +61,7 @@ int main(void)
     ALLEGRO_BITMAP *buffer = al_create_bitmap(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     must_init(buffer, "buffer");
 
-    ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 16, 0);
+    ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 10, 0);
     must_init(font, "font");
 
     ALLEGRO_BITMAP *player_static_sprite = al_load_bitmap("data/player_static.png");
@@ -78,9 +78,9 @@ int main(void)
         48,    // frame_width
         48,    // frame_height
         4,     // frame_count
-        0,     // start_frame (frames 0-3 in spritesheet)
-        0.15f, // frame_duration (150ms per frame)
-        true   // loop
+        0,     // start_frame
+        0.15f, // frame_duration
+        true   //
     );
 
     // E ele se tornou um rabisco, uma mera ilusão do seu passado glorioso... é o glorioso não tem jeito!
@@ -89,8 +89,8 @@ int main(void)
         48,    // frame_width
         48,    // frame_height
         4,     // frame_count
-        4,     // start_frame (frames 4-11 in spritesheet)
-        0.10f, // frame_duration (80ms per frame - faster for running)
+        4,     // start_frame
+        0.10f, // frame_duration
         true   // loop
     );
 
@@ -99,13 +99,13 @@ int main(void)
         48,    // frame_width
         48,    // frame_height
         4,     // frame_count
-        8,     // start_frame (frames 12-14 in spritesheet)
+        8,     // start_frame
         0.12f, // frame_duration
-        false  // don't loop - stay on last frame
+        false  // loop
     );
 
     Level *level = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
-    level->camera_lerp_speed = 0.1f;
+    level->camera_lerp_speed = 0.05;
 
     Room *room1 = room_create(0, 0);
     strcpy(room1->name, "Starting Room");
@@ -147,11 +147,11 @@ int main(void)
     }
 
     player->actor->sprite = player_static_sprite;
-    level_add_actor(level, player->actor);
-
     player->idle_anim = idle_anim;
     player->run_anim = run_anim;
     player->jump_anim = jump_anim;
+
+    level_add_actor(level, player->actor);
 
     level_update_current_room(level, player_pos);
     if (level->current_room)
@@ -224,6 +224,8 @@ int main(void)
             // remove o efeito pra desenhar UI estática
             al_identity_transform(&transform);
             al_use_transform(&transform);
+
+            al_draw_text(font, al_map_rgb(255, 255, 255), 2, 0, 0, "Solid Knight");
 
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));

@@ -8,7 +8,7 @@ typedef struct Level Level;
 typedef struct
 {
     Vector2 position; // onde desenhar na tela
-    int width;
+    int width;        // hitbox
     int height;
     int source_x; // qual tile pegar do tileset
     int source_y;

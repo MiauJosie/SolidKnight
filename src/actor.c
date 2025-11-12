@@ -70,15 +70,16 @@ bool actor_collide_at(Actor *actor, Vector2 position)
 
         if (solids[i]->is_collidable && rectangles_intersect(beiradinha_do_ator, solid_bounds))
         {
+            // You shall collide!
             return true;
         }
     }
 
-    // You shall not move!
+    // You shall not collide!
     return false;
 }
 
-// Remou, puxou, passou... ?
+// Remou, passou...
 void actor_move_x(Actor *actor, float amount)
 {
     actor->remainder.x += amount;

@@ -216,8 +216,8 @@ void level_draw(Level *level)
         {
             return;
         }
-        // Room *room = level->current_room;
-        Room *room = level->rooms[i];
+        Room *room = level->current_room;
+        // Room *room = level->rooms[i];
         for (int i = 0; i < room->solid_count; i++)
         {
             solid_draw(room->solids[i]);
