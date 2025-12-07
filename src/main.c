@@ -4,6 +4,7 @@
 #include "actor.h"
 #include "solid.h"
 #include "level.h"
+#include "manager.h"
 #include "types.h"
 #include "player.h"
 #include "animator.h"
@@ -27,7 +28,9 @@
 #define ROOM_HEIGHT_TILES 23
 #define ROOM_HEIGHT_PIXELS (ROOM_HEIGHT_TILES * TILE_SIZE)
 
-void must_init(bool test, const char *description)
+bool DEBUG_HITBOXES = false; // Global flag for hitbox debugging
+
+void must_init(bool test, const char* description)
 {
     if (test)
     {
@@ -47,119 +50,204 @@ int main(void)
     must_init(al_init_ttf_addon(), "ttf addon");
     must_init(al_init_font_addon(), "font addon");
 
-    ALLEGRO_TIMER *timer = al_create_timer(TARGET_FPS);
+    ALLEGRO_TIMER* timer = al_create_timer(TARGET_FPS);
     must_init(timer, "timer");
 
-    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     must_init(queue, "queue");
 
     al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
-    ALLEGRO_DISPLAY *display = al_create_display(WINDOW_W, WINDOW_H);
+    ALLEGRO_DISPLAY* display = al_create_display(WINDOW_W, WINDOW_H);
     must_init(display, "display");
     al_set_window_title(display, "SolidKnight");
 
-    ALLEGRO_BITMAP *buffer = al_create_bitmap(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+    ALLEGRO_BITMAP* buffer = al_create_bitmap(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     must_init(buffer, "buffer");
 
-    ALLEGRO_FONT *font = al_load_font("data/JetBrainsMono-Regular.ttf", 10, 0);
+    ALLEGRO_FONT* font = al_load_font("data/JetBrainsMono-Regular.ttf", 10, 0);
     must_init(font, "font");
 
-    ALLEGRO_BITMAP *player_static_sprite = al_load_bitmap("data/player_static.png");
+    ALLEGRO_BITMAP* player_static_sprite = al_load_bitmap("data/player_static.png");
     must_init(player_static_sprite, "player static sprite");
 
-    ALLEGRO_BITMAP *player_spritesheet = al_load_bitmap("data/player_atlas.png");
+    ALLEGRO_BITMAP* player_spritesheet = al_load_bitmap("data/player_atlas.png");
     must_init(player_spritesheet, "player spritesheet");
 
-    ALLEGRO_BITMAP *level_sprite = al_load_bitmap("data/Tileset-Forest-Ground-8x8.png");
+    ALLEGRO_BITMAP* bat_spritesheet = al_load_bitmap("data/bat_atlas.png");
+    must_init(bat_spritesheet, "bat spritesheet");
+
+    ALLEGRO_BITMAP* slime_spritesheet = al_load_bitmap("data/slime_atlas.png");
+    must_init(bat_spritesheet, "slime spritesheet");
+
+    ALLEGRO_BITMAP* level_sprite = al_load_bitmap("data/Tileset-Forest-Ground-8x8.png");
     must_init(level_sprite, "level sprite");
 
-    Animation *idle_anim = animation_create(
-        player_spritesheet,
-        48,    // frame_width
-        48,    // frame_height
-        4,     // frame_count
-        0,     // start_frame
-        0.15f, // frame_duration
-        true   //
+    ALLEGRO_BITMAP* enemy_sprite = al_create_bitmap(8, 8);
+    al_set_target_bitmap(enemy_sprite);
+    al_clear_to_color(al_map_rgb(255, 0, 0)); // Red square
+    al_set_target_backbuffer(display);
+
+    // Create animations
+    Animation* bat_fly_anim = animation_create(
+        bat_spritesheet,
+        48,
+        48,
+        8,
+        0,
+        0.15f,
+        true
     );
 
-    // E ele se tornou um rabisco, uma mera ilusão do seu passado glorioso... é o glorioso não tem jeito!
-    Animation *run_anim = animation_create(
-        player_spritesheet,
-        48,    // frame_width
-        48,    // frame_height
-        4,     // frame_count
-        4,     // start_frame
-        0.10f, // frame_duration
-        true   // loop
+    Animation* slime_patrol_anim = animation_create(
+        slime_spritesheet,
+        48,
+        48,
+        8,
+        0,
+        0.15f,
+        true
     );
 
-    Animation *jump_anim = animation_create(
+    // Create animations
+    Animation* idle_anim = animation_create(
         player_spritesheet,
-        48,    // frame_width
-        48,    // frame_height
-        4,     // frame_count
-        8,     // start_frame
-        0.12f, // frame_duration
-        false  // loop
+        48,
+        48,
+        4,
+        0,
+        0.15f,
+        true
     );
 
-    Level *level = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
-    level->camera_lerp_speed = 0.05;
+    Animation* run_anim = animation_create(
+        player_spritesheet,
+        48,
+        48,
+        4,
+        4,
+        0.10f,
+        true
+    );
 
-    Room *room1 = room_create(0, 0);
-    strcpy(room1->name, "Starting Room");
-    level_load_room_from_csv(level, room1, "data/levelforest-room1.csv", level_sprite);
-    level_add_room(level, room1);
+    Animation* jump_anim = animation_create(
+        player_spritesheet,
+        48,
+        48,
+        4,
+        8,
+        0.12f,
+        false
+    );
 
-    Room *room2 = room_create(VIRTUAL_WIDTH, 0);
-    strcpy(room2->name, "Right Room");
-    level_load_room_from_csv(level, room2, "data/levelforest-room3.csv", level_sprite);
-    level_add_room(level, room2);
+    LevelManager* level_manager = level_manager_create();
 
-    Room *room3 = room_create(0, ROOM_HEIGHT_PIXELS);
-    strcpy(room3->name, "Bottom Room");
-    level_load_room_from_csv(level, room3, "data/levelforest-room2.csv", level_sprite);
-    level_add_room(level, room3);
-
-    Room *room4 = room_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
-    strcpy(room4->name, "Bottom Right Room");
-    level_load_room_from_csv(level, room4, "data/levelforest-room4.csv", level_sprite);
-    level_add_room(level, room4);
-
-    Vector2 player_pos = {20, 112};
-    Player *player = player_create(level, player_pos);
-
-    if (player == NULL)
+    Level* level_0 = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS, (Vector2)
     {
-        printf("Failed to create player!\n");
-        return 1;
-    }
-    if (player->actor == NULL)
-    {
-        printf("Player actor is NULL!\n");
-        return 1;
-    }
-    if (player->actor->animator == NULL)
-    {
-        printf("Player animator is NULL!\n");
-        return 1;
-    }
+        296, 112
+    });
+    level_0->camera_lerp_speed = 0.05f;
 
+    Room* level_0_room_0 = room_create(0, 0);
+    strcpy(level_0_room_0->name, "Level 0 - Room 0");
+    level_load_room_from_csv(level_0, level_0_room_0, "data/level-0_room-0.csv", level_sprite);
+    level_add_room(level_0, level_0_room_0);
+    level_0_room_0->kill_on_exit_bottom = true;
+
+    Room* level_0_room_1 = room_create(0, ROOM_HEIGHT_PIXELS);
+    strcpy(level_0_room_1->name, "Level 0 - Room 1");
+    level_load_room_from_csv(level_0, level_0_room_1, "data/level-0_room-1.csv", level_sprite);
+    level_add_room(level_0, level_0_room_1);
+
+    Room* level_0_room_2 = room_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
+    strcpy(level_0_room_2->name, "Level 0 - Room 2");
+    level_load_room_from_csv(level_0, level_0_room_2, "data/level-0_room-2.csv", level_sprite);
+    level_add_room(level_0, level_0_room_2);
+
+    Room* level_0_room_3 = room_create(2 * VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS);
+    strcpy(level_0_room_3->name, "Level 0 - Room 3");
+    level_load_room_from_csv(level_0, level_0_room_3, "data/level-0_room-3.csv", level_sprite);
+    level_add_room(level_0, level_0_room_3);
+
+    level_manager_add_level(level_manager, level_0, "Level 0");
+    level_manager_switch_to_level_by_index(level_manager, 0);
+
+    Level* level_1 = level_create(VIRTUAL_WIDTH, ROOM_HEIGHT_PIXELS, (Vector2)
+    {
+        32, 144
+    });
+    level_1->camera_lerp_speed = 0.05f;
+
+    Room* level_1_room_0 = room_create(0, 0);
+    strcpy(level_1_room_0->name, "Level 1 - Room 0");
+    level_load_room_from_csv(level_1, level_1_room_0, "data/level-1_room-0.csv", level_sprite);
+    level_add_room(level_1, level_1_room_0);
+
+    Room* level_1_room_1 = room_create(VIRTUAL_WIDTH, 0);
+    strcpy(level_1_room_1->name, "Level 1 - Room 1");
+    level_load_room_from_csv(level_1, level_1_room_1, "data/level-1_room-1.csv", level_sprite);
+    level_add_room(level_1, level_1_room_1);
+
+    Room* level_1_room_2 = room_create(VIRTUAL_WIDTH * 2, 0);
+    strcpy(level_1_room_2->name, "Level 1 - Room 1");
+    level_load_room_from_csv(level_1, level_1_room_2, "data/level-1_room-2.csv", level_sprite);
+    level_add_room(level_1, level_1_room_2);
+
+    Room* level_1_room_3 = room_create(VIRTUAL_WIDTH * 3, 0);
+    strcpy(level_1_room_3->name, "Level 1 - Room 3");
+    level_load_room_from_csv(level_1, level_1_room_3, "data/level-1_room-3.csv", level_sprite);
+    level_add_room(level_1, level_1_room_3);
+
+    level_manager_add_level(level_manager, level_1, "Level 1");
+
+    Enemy* enemy1 = enemy_create(level_0, (Vector2)
+    {
+        80, 128
+    }, ENEMY_TYPE_PATROL, 1);
+    enemy1->actor->sprite = enemy_sprite;
+    enemy1->walk_anim = slime_patrol_anim;
+    enemy1->idle_anim = slime_patrol_anim;
+    enemy1->actor->sprite_offset.x = -18;
+    enemy1->actor->sprite_offset.y = -24;
+    enemy1->data.patrol.patrol_distance = 60.0f;
+    enemy1->actor->width = 12;
+    enemy1->actor->height = 7;
+    level_manager_add_enemy(level_manager, enemy1);
+
+    Enemy* enemy2 = enemy_create(level_0, (Vector2)
+    {
+        200, 80
+    }, ENEMY_TYPE_FLYING, -1);
+    enemy2->actor->sprite = enemy_sprite;
+    enemy2->data.flying.fly_distance = 20.0f;
+    enemy2->data.flying.hover_amplitude = 20.0f;
+    enemy2->walk_anim = bat_fly_anim;
+    enemy2->idle_anim = bat_fly_anim;
+    enemy2->actor->sprite_offset.x = -16;
+    enemy2->actor->sprite_offset.y = -20;
+    enemy2->actor->width = 16;
+    enemy2->actor->height = 8;
+    level_manager_add_enemy(level_manager, enemy2);
+
+    Enemy* enemy3 = enemy_create(level_0, (Vector2)
+    {
+        24, 336
+    }, ENEMY_TYPE_PATROL, 1);
+    enemy3->actor->sprite = enemy_sprite;
+    enemy3->walk_anim = slime_patrol_anim;
+    enemy3->idle_anim = slime_patrol_anim;
+    enemy3->actor->sprite_offset.x = -18;
+    enemy3->actor->sprite_offset.y = -24;
+    enemy3->data.patrol.patrol_distance = 8.0f;
+    enemy3->actor->width = 12;
+    enemy3->actor->height = 7;
+    level_manager_add_enemy(level_manager, enemy3);
+
+    // Set up player animations
+    Player* player = level_manager_get_player(level_manager);
     player->actor->sprite = player_static_sprite;
     player->idle_anim = idle_anim;
     player->run_anim = run_anim;
     player->jump_anim = jump_anim;
-
-    level_add_actor(level, player->actor);
-
-    level_update_current_room(level, player_pos);
-    if (level->current_room)
-    {
-        level->camera_position.x = level->current_room->x;
-        level->camera_position.y = level->current_room->y;
-        level->camera_target = level->camera_position;
-    }
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -167,6 +255,8 @@ int main(void)
 
     bool running = true;
     bool redraw = true;
+    bool won = false;
+
     ALLEGRO_EVENT event;
     ALLEGRO_KEYBOARD_STATE keys;
 
@@ -178,22 +268,44 @@ int main(void)
         if (event.type == ALLEGRO_EVENT_TIMER)
         {
             al_get_keyboard_state(&keys);
-            player_update(player, &keys, TARGET_FPS);
-            level_update(level, player->actor->position, TARGET_FPS);
+            level_manager_update(level_manager, &keys, TARGET_FPS);
+
+            Player* player = level_manager_get_player(level_manager);
+            if (player->trigger_hit == 1)
+            {
+                level_manager_switch_to_next_level(level_manager);
+                player->trigger_hit = 0;  // Reset
+            }
+            else if (player->trigger_hit == 2)
+            {
+                won = true;
+            }
+            else if (player->is_dead)
+            {
+                level_manager_respawn_player(level_manager);
+            }
+
             redraw = true;
         }
         else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             {
-                // running = false;
-                player->actor->position.x = 20;
-                player->actor->position.y = 112;
+                running = false;
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_F11)
             {
                 al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !(al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW));
                 al_acknowledge_resize(display);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_H)
+            {
+                DEBUG_HITBOXES = !DEBUG_HITBOXES;
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_EQUALS)
+            {
+                Player* player = level_manager_get_player(level_manager);
+                level_manager_switch_to_next_level(level_manager);
             }
         }
         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -205,28 +317,45 @@ int main(void)
             al_acknowledge_resize(display);
         }
 
-        // Rendering ...pipeline?
+        // Rendering
         if (redraw && al_event_queue_is_empty(queue))
         {
             al_set_target_bitmap(buffer);
             al_clear_to_color(al_map_rgb(3, 1, 20));
 
-            // move todos os objetos no level por cam_pos pra aparecerem relativos à camera
-            Vector2 cam_pos = level_get_camera_position(level);
-            ALLEGRO_TRANSFORM transform;
-            al_identity_transform(&transform);
-            al_translate_transform(&transform, -cam_pos.x, -cam_pos.y);
-            al_use_transform(&transform);
+            // Get current level's camera
+            Level* current_level = level_manager_get_current_level(level_manager);
+            if (current_level != NULL)
+            {
+                Vector2 cam_pos = level_get_camera_position(current_level);
+                ALLEGRO_TRANSFORM transform;
+                al_identity_transform(&transform);
+                al_translate_transform(&transform, -cam_pos.x, -cam_pos.y);
+                al_use_transform(&transform);
 
-            level_draw(level);
-            player_draw(player);
+                level_manager_draw(level_manager);
 
-            // remove o efeito pra desenhar UI estática
-            al_identity_transform(&transform);
-            al_use_transform(&transform);
+                // Reset transform for UI
+                al_identity_transform(&transform);
+                al_use_transform(&transform);
+            }
 
-            al_draw_text(font, al_map_rgb(255, 255, 255), 2, 0, 0, "Solid Knight");
+            al_draw_text(font, al_map_rgb(255, 255, 255), 2, 0, 0, current_level->current_room->name);
 
+            Player* player = level_manager_get_player(level_manager);
+            if (player != NULL)
+            {
+                al_draw_textf(font, al_map_rgb(255, 255, 255), VIRTUAL_WIDTH - 2, 0, ALLEGRO_ALIGN_RIGHT, "Health: %d/%d", player->health, player->max_health);
+            }
+
+            if (won)
+            {
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                al_draw_textf(font, al_map_rgb(255, 255, 255), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2 - 10, ALLEGRO_ALIGN_CENTER, "YOU WON!");
+                al_draw_textf(font, al_map_rgb(255, 255, 255), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, ALLEGRO_ALIGN_CENTER, "Congrats...");
+            }
+
+            // Draw to screen with scalinga
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -242,17 +371,22 @@ int main(void)
             float dest_x = (viewport_w - scaled_w) / 2.0f;
             float dest_y = (viewport_h - scaled_h) / 2.0f;
 
-            al_draw_scaled_bitmap(buffer, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, dest_x, dest_y, scaled_w, scaled_h, 0);
+            al_draw_scaled_bitmap(buffer, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT,
+                dest_x, dest_y, scaled_w, scaled_h, 0);
 
             al_flip_display();
             redraw = false;
         }
     }
 
-    player_destroy(player);
-    level_destroy(level);
-
+    // Cleanup
+    level_manager_destroy(level_manager);
+    animation_destroy(idle_anim);
+    animation_destroy(run_anim);
+    animation_destroy(jump_anim);
     al_destroy_bitmap(player_static_sprite);
+    al_destroy_bitmap(player_spritesheet);
+    al_destroy_bitmap(level_sprite);
     al_destroy_bitmap(buffer);
     al_destroy_font(font);
     al_destroy_display(display);
