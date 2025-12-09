@@ -12,9 +12,12 @@ typedef struct
     int height;
     int source_x; // qual tile pegar do tileset
     int source_y;
-    Level *level;
+    Level* level;
 
-    ALLEGRO_BITMAP *sprite;
+    bool is_trigger;
+    int trigger_type;
+
+    ALLEGRO_BITMAP* sprite;
     bool is_collidable;
 } Solid;
 

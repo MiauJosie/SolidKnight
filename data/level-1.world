@@ -1,0 +1,34 @@
+{
+    "maps": [
+        {
+            "fileName": "level-1-room-0.tmx",
+            "height": 184,
+            "width": 320,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "fileName": "level-1-room-1.tmx",
+            "height": 184,
+            "width": 320,
+            "x": 320,
+            "y": 0
+        },
+        {
+            "fileName": "level-1-room-2.tmx",
+            "height": 184,
+            "width": 320,
+            "x": 640,
+            "y": 0
+        },
+        {
+            "fileName": "level-1-room-3.tmx",
+            "height": 184,
+            "width": 320,
+            "x": 960,
+            "y": 0
+        }
+    ],
+    "onlyShowAdjacentMaps": false,
+    "type": "world"
+}

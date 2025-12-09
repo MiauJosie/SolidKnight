@@ -216,10 +216,8 @@ void level_load_room_from_csv(Level* level, Room* room, const char* csv_path, AL
     fclose(file);
 }
 
-void level_update_camera(Level* level, float delta_time)
+void level_update_camera(Level* level)
 {
-    (void)delta_time; // Não usado ainda
-
     if (level->current_room == NULL)
     {
         return;
@@ -229,10 +227,10 @@ void level_update_camera(Level* level, float delta_time)
     level->camera_position.y = move_towards(level->camera_position.y, level->camera_target.y, fabs(level->camera_target.y - level->camera_position.y) * level->camera_lerp_speed);
 }
 
-void level_update(Level* level, Vector2 player_position, float delta_time)
+void level_update(Level* level, Vector2 player_position)
 {
     level_update_current_room(level, player_position);
-    level_update_camera(level, delta_time);
+    level_update_camera(level);
 }
 
 void level_draw(Level* level)
@@ -295,13 +293,12 @@ void level_remove_actor(Level* level, Actor* actor)
     {
         if (level->actors[i] == actor)
         {
-            // Shift elements to the left to remove the actor
             for (int j = i; j < level->actor_count - 1; j++)
             {
                 level->actors[j] = level->actors[j + 1];
             }
             level->actor_count--;
-            break; // Actor found and removed, exit loop
+            break;
         }
     }
 }

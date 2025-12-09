@@ -54,11 +54,10 @@ Player* player_create(Level* level, Vector2 position)
 
     player->trigger_hit = 0;
 
-    // Add damage system
     player->can_take_damage = true;
     player->damage_cooldown = 1.0f;
     player->damage_cooldown_timer = 0.0f;
-    player->enemy_ptr = NULL;  // To store enemy reference for collision check
+    player->enemy_ptr = NULL;
 
     player->health = 3;
     player->max_health = 3;
@@ -74,12 +73,10 @@ void player_respawn(Player* player)
     player->can_take_damage = true;
 }
 
-// Update player_update() to include enemy collision check
 void player_update(Player* player, ALLEGRO_KEYBOARD_STATE* keys, float delta_time)
 {
     player->time += delta_time;
 
-    // Update damage cooldown
     if (!player->can_take_damage)
     {
         player->damage_cooldown_timer += delta_time;
@@ -352,41 +349,32 @@ void check_enemy_collisions(Player* player)
         return;
     }
 
-    // Iterate through all actors and check if they're enemies
     for (int i = 0; i < level->actor_count; i++)
     {
         Actor* other = level->actors[i];
 
-        // Skip if it's the player itself
         if (other == player->actor)
         {
             continue;
         }
 
-        // We need to check if this actor belongs to an enemy
-        // The enemy system stores a pointer, so we'll check collision directly
         Rectangle player_bounds = actor_get_bounds(player->actor);
         Rectangle other_bounds = actor_get_bounds(other);
 
         if (rectangles_intersect(player_bounds, other_bounds) && other->is_collidable)
         {
-            // Check if player is stomping
             bool is_stomping = player->velocity.y > 0 &&
                 player->actor->position.y + 8 < other->position.y;
 
             if (is_stomping)
             {
-                // Signal damage to enemy (enemy will handle this in its update)
-                // For now, just bounce the player
                 player->velocity.y = -150.0f;
                 printf("Stomped something!\n");
 
-                // Mark the enemy actor for the enemy update to detect
                 player->enemy_ptr = other;
             }
             else if (player->can_take_damage)
             {
-                // Player takes damage
                 printf("Player hit!\n");
                 player->can_take_damage = false;
                 player->damage_cooldown_timer = 0.0f;
@@ -398,7 +386,6 @@ void check_enemy_collisions(Player* player)
                     player->is_dead = true;
                 }
 
-                // Knockback
                 float knockback_direction = (player->actor->position.x < other->position.x) ? -1.0f : 1.0f;
                 player->velocity.x = knockback_direction * 100.0f;
                 player->velocity.y = -100.0f;
@@ -422,7 +409,6 @@ void check_triggers(Player* player)
 
             if (rectangles_intersect(player_bounds, trigger_bounds))
             {
-                // Signal that a trigger was hit
                 player->trigger_hit = solids[i]->trigger_type;
             }
         }

@@ -28,7 +28,7 @@
 #define ROOM_HEIGHT_TILES 23
 #define ROOM_HEIGHT_PIXELS (ROOM_HEIGHT_TILES * TILE_SIZE)
 
-bool DEBUG_HITBOXES = false; // Global flag for hitbox debugging
+bool DEBUG_HITBOXES = false;
 
 void must_init(bool test, const char* description)
 {
@@ -84,10 +84,9 @@ int main(void)
 
     ALLEGRO_BITMAP* enemy_sprite = al_create_bitmap(8, 8);
     al_set_target_bitmap(enemy_sprite);
-    al_clear_to_color(al_map_rgb(255, 0, 0)); // Red square
+    al_clear_to_color(al_map_rgb(255, 0, 0));
     al_set_target_backbuffer(display);
 
-    // Create animations
     Animation* bat_fly_anim = animation_create(
         bat_spritesheet,
         48,
@@ -108,7 +107,6 @@ int main(void)
         true
     );
 
-    // Create animations
     Animation* idle_anim = animation_create(
         player_spritesheet,
         48,
@@ -151,7 +149,6 @@ int main(void)
     strcpy(level_0_room_0->name, "Level 0 - Room 0");
     level_load_room_from_csv(level_0, level_0_room_0, "data/level-0_room-0.csv", level_sprite);
     level_add_room(level_0, level_0_room_0);
-    level_0_room_0->kill_on_exit_bottom = true;
 
     Room* level_0_room_1 = room_create(0, ROOM_HEIGHT_PIXELS);
     strcpy(level_0_room_1->name, "Level 0 - Room 1");
@@ -181,68 +178,232 @@ int main(void)
     strcpy(level_1_room_0->name, "Level 1 - Room 0");
     level_load_room_from_csv(level_1, level_1_room_0, "data/level-1_room-0.csv", level_sprite);
     level_add_room(level_1, level_1_room_0);
+    level_1_room_0->kill_on_exit_bottom = true;
 
     Room* level_1_room_1 = room_create(VIRTUAL_WIDTH, 0);
     strcpy(level_1_room_1->name, "Level 1 - Room 1");
     level_load_room_from_csv(level_1, level_1_room_1, "data/level-1_room-1.csv", level_sprite);
     level_add_room(level_1, level_1_room_1);
+    level_1_room_1->kill_on_exit_bottom = true;
 
     Room* level_1_room_2 = room_create(VIRTUAL_WIDTH * 2, 0);
     strcpy(level_1_room_2->name, "Level 1 - Room 1");
     level_load_room_from_csv(level_1, level_1_room_2, "data/level-1_room-2.csv", level_sprite);
     level_add_room(level_1, level_1_room_2);
+    level_1_room_2->kill_on_exit_bottom = true;
 
     Room* level_1_room_3 = room_create(VIRTUAL_WIDTH * 3, 0);
     strcpy(level_1_room_3->name, "Level 1 - Room 3");
     level_load_room_from_csv(level_1, level_1_room_3, "data/level-1_room-3.csv", level_sprite);
     level_add_room(level_1, level_1_room_3);
+    level_1_room_3->kill_on_exit_bottom = true;
 
     level_manager_add_level(level_manager, level_1, "Level 1");
 
     Enemy* enemy1 = enemy_create(level_0, (Vector2)
     {
         80, 128
-    }, ENEMY_TYPE_PATROL, 1);
-    enemy1->actor->sprite = enemy_sprite;
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
     enemy1->walk_anim = slime_patrol_anim;
     enemy1->idle_anim = slime_patrol_anim;
-    enemy1->actor->sprite_offset.x = -18;
-    enemy1->actor->sprite_offset.y = -24;
     enemy1->data.patrol.patrol_distance = 60.0f;
-    enemy1->actor->width = 12;
-    enemy1->actor->height = 7;
     level_manager_add_enemy(level_manager, enemy1);
 
     Enemy* enemy2 = enemy_create(level_0, (Vector2)
     {
         200, 80
-    }, ENEMY_TYPE_FLYING, -1);
-    enemy2->actor->sprite = enemy_sprite;
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
     enemy2->data.flying.fly_distance = 20.0f;
-    enemy2->data.flying.hover_amplitude = 20.0f;
+    enemy2->data.flying.hover_height = 20.0f;
+    enemy2->data.flying.hover_frequency = 1.0f;
+    enemy2->data.flying.fly_speed = 30.0f;
     enemy2->walk_anim = bat_fly_anim;
     enemy2->idle_anim = bat_fly_anim;
-    enemy2->actor->sprite_offset.x = -16;
-    enemy2->actor->sprite_offset.y = -20;
-    enemy2->actor->width = 16;
-    enemy2->actor->height = 8;
     level_manager_add_enemy(level_manager, enemy2);
 
     Enemy* enemy3 = enemy_create(level_0, (Vector2)
     {
         24, 336
-    }, ENEMY_TYPE_PATROL, 1);
-    enemy3->actor->sprite = enemy_sprite;
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
     enemy3->walk_anim = slime_patrol_anim;
     enemy3->idle_anim = slime_patrol_anim;
-    enemy3->actor->sprite_offset.x = -18;
-    enemy3->actor->sprite_offset.y = -24;
-    enemy3->data.patrol.patrol_distance = 8.0f;
-    enemy3->actor->width = 12;
-    enemy3->actor->height = 7;
+    enemy3->data.patrol.patrol_distance = 9.0f;
     level_manager_add_enemy(level_manager, enemy3);
 
-    // Set up player animations
+    Enemy* enemy4 = enemy_create(level_0, (Vector2)
+    {
+        144, 296
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy4->data.flying.fly_distance = 20.0f;
+    enemy4->data.flying.hover_height = 20.0f;
+    enemy4->data.flying.hover_frequency = 3.0f;
+    enemy4->walk_anim = bat_fly_anim;
+    enemy4->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy4);
+
+    Enemy* enemy5 = enemy_create(level_0, (Vector2)
+    {
+        208, 248
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy5->data.flying.fly_distance = 20.0f;
+    enemy5->data.flying.hover_height = 10.0f;
+    enemy5->walk_anim = bat_fly_anim;
+    enemy5->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy5);
+
+    Enemy* enemy6 = enemy_create(level_0, (Vector2)
+    {
+        360, 296
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy6->walk_anim = slime_patrol_anim;
+    enemy6->idle_anim = slime_patrol_anim;
+    enemy6->data.patrol.patrol_distance = 40.0f;
+    level_manager_add_enemy(level_manager, enemy6);
+
+    Enemy* enemy7 = enemy_create(level_0, (Vector2)
+    {
+        384, 216
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy7->data.flying.fly_distance = 10.0f;
+    enemy7->data.flying.hover_height = 20.0f;
+    enemy7->data.flying.hover_frequency = 4.0f;
+    enemy7->walk_anim = bat_fly_anim;
+    enemy7->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy7);
+
+    Enemy* enemy8 = enemy_create(level_0, (Vector2)
+    {
+        464, 336
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy8->data.flying.fly_distance = 1.0f;
+    enemy8->data.flying.hover_height = 17.0f;
+    enemy8->walk_anim = bat_fly_anim;
+    enemy8->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy8);
+
+    Enemy* enemy9 = enemy_create(level_0, (Vector2)
+    {
+        552, 240
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy9->walk_anim = slime_patrol_anim;
+    enemy9->idle_anim = slime_patrol_anim;
+    enemy9->data.patrol.patrol_distance = 15.0f;
+    level_manager_add_enemy(level_manager, enemy9);
+
+    Enemy* enemy10 = enemy_create(level_0, (Vector2)
+    {
+        648, 216
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy10->walk_anim = slime_patrol_anim;
+    enemy10->idle_anim = slime_patrol_anim;
+    enemy10->data.patrol.patrol_distance = 50.0f;
+    level_manager_add_enemy(level_manager, enemy10);
+
+    Enemy* enemy11 = enemy_create(level_0, (Vector2)
+    {
+        667, 192
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy11->data.flying.fly_distance = 20.0f;
+    enemy11->data.flying.hover_height = 20.0f;
+    enemy11->walk_anim = bat_fly_anim;
+    enemy11->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy11);
+
+    Enemy* enemy12 = enemy_create(level_0, (Vector2)
+    {
+        776, 216
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy12->walk_anim = slime_patrol_anim;
+    enemy12->idle_anim = slime_patrol_anim;
+    enemy12->data.patrol.patrol_distance = 50.0f;
+    level_manager_add_enemy(level_manager, enemy12);
+
+    Enemy* enemy13 = enemy_create(level_0, (Vector2)
+    {
+        832, 216
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy13->walk_anim = slime_patrol_anim;
+    enemy13->idle_anim = slime_patrol_anim;
+    enemy13->data.patrol.patrol_distance = 40.0f;
+    enemy13->data.patrol.move_speed = 40.0f;
+    level_manager_add_enemy(level_manager, enemy13);
+
+    Enemy* enemy14 = enemy_create(level_0, (Vector2)
+    {
+        784, 320
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy14->walk_anim = slime_patrol_anim;
+    enemy14->idle_anim = slime_patrol_anim;
+    enemy14->data.patrol.patrol_distance = 50.0f;
+    enemy14->data.patrol.move_speed = 30.0f;
+    level_manager_add_enemy(level_manager, enemy14);
+
+    Enemy* enemy15 = enemy_create(level_1, (Vector2)
+    {
+        168, 152
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy15->walk_anim = slime_patrol_anim;
+    enemy15->idle_anim = slime_patrol_anim;
+    enemy15->data.patrol.patrol_distance = 25.0f;
+    enemy15->data.patrol.move_speed = 25.0f;
+    level_manager_add_enemy(level_manager, enemy15);
+
+    Enemy* enemy16 = enemy_create(level_1, (Vector2)
+    {
+        96, 112
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy16->data.flying.fly_distance = 20.0f;
+    enemy16->data.flying.hover_height = 20.0f;
+    enemy16->data.flying.hover_frequency = 5.0f;
+    enemy16->walk_anim = bat_fly_anim;
+    enemy16->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy16);
+
+    Enemy* enemy17 = enemy_create(level_1, (Vector2)
+    {
+        232, 136
+    }, ENEMY_TYPE_PATROL, 1, enemy_sprite);
+    enemy17->walk_anim = slime_patrol_anim;
+    enemy17->idle_anim = slime_patrol_anim;
+    enemy17->data.patrol.patrol_distance = 80.0f;
+    enemy17->data.patrol.move_speed = 40.0f;
+    level_manager_add_enemy(level_manager, enemy17);
+
+    Enemy* enemy18 = enemy_create(level_1, (Vector2)
+    {
+        408, 120
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy18->data.flying.fly_distance = 20.0f;
+    enemy18->data.flying.hover_height = 20.0f;
+    enemy18->data.flying.hover_frequency = 5.0f;
+    enemy18->walk_anim = bat_fly_anim;
+    enemy18->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy18);
+
+    Enemy* enemy19 = enemy_create(level_1, (Vector2)
+    {
+        592, 100
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy19->data.flying.fly_distance = 20.0f;
+    enemy19->data.flying.hover_frequency = 5.0f;
+    enemy19->data.flying.hover_height = 20.0f;
+    enemy19->data.flying.fly_speed = 70.0f;
+    enemy19->walk_anim = bat_fly_anim;
+    enemy19->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy19);
+
+    Enemy* enemy20 = enemy_create(level_1, (Vector2)
+    {
+        544, 120
+    }, ENEMY_TYPE_FLYING, -1, enemy_sprite);
+    enemy20->data.flying.fly_distance = 20.0f;
+    enemy20->data.flying.hover_height = 20.0f;
+    enemy19->data.flying.hover_frequency = 3.0f;
+    enemy20->data.flying.fly_speed = 50.0f;
+    enemy20->walk_anim = bat_fly_anim;
+    enemy20->idle_anim = bat_fly_anim;
+    level_manager_add_enemy(level_manager, enemy20);
+
     Player* player = level_manager_get_player(level_manager);
     player->actor->sprite = player_static_sprite;
     player->idle_anim = idle_anim;
@@ -274,7 +435,7 @@ int main(void)
             if (player->trigger_hit == 1)
             {
                 level_manager_switch_to_next_level(level_manager);
-                player->trigger_hit = 0;  // Reset
+                player->trigger_hit = 0;
             }
             else if (player->trigger_hit == 2)
             {
@@ -304,7 +465,6 @@ int main(void)
             }
             if (event.keyboard.keycode == ALLEGRO_KEY_EQUALS)
             {
-                Player* player = level_manager_get_player(level_manager);
                 level_manager_switch_to_next_level(level_manager);
             }
         }
@@ -317,13 +477,11 @@ int main(void)
             al_acknowledge_resize(display);
         }
 
-        // Rendering
         if (redraw && al_event_queue_is_empty(queue))
         {
             al_set_target_bitmap(buffer);
             al_clear_to_color(al_map_rgb(3, 1, 20));
 
-            // Get current level's camera
             Level* current_level = level_manager_get_current_level(level_manager);
             if (current_level != NULL)
             {
@@ -335,7 +493,6 @@ int main(void)
 
                 level_manager_draw(level_manager);
 
-                // Reset transform for UI
                 al_identity_transform(&transform);
                 al_use_transform(&transform);
             }
@@ -355,7 +512,6 @@ int main(void)
                 al_draw_textf(font, al_map_rgb(255, 255, 255), VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, ALLEGRO_ALIGN_CENTER, "Congrats...");
             }
 
-            // Draw to screen with scalinga
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -379,7 +535,6 @@ int main(void)
         }
     }
 
-    // Cleanup
     level_manager_destroy(level_manager);
     animation_destroy(idle_anim);
     animation_destroy(run_anim);
